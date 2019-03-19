@@ -22,6 +22,20 @@ exports.getProducts = (callback) => {
     TableName: tableName
   }
 
-  console.log('Scanning Movies table.')
   documentClient.scan(params, callback)
+}
+
+exports.getProductsByCategory = (categoryId, callback) => {
+  var params = {
+    TableName: tableName,
+    KeyConditionExpression: '#id = :id',
+    ExpressionAttributeNames: {
+      '#id': 'categoryId'
+    },
+    ExpressionAttributeValues: {
+      ':id': categoryId
+    }
+  }
+
+  documentClient.query(params, callback)
 }

@@ -55,3 +55,20 @@ exports.getProducts = (req, res) => {
     }
   })
 }
+
+exports.getProductsByCategory = (req, res) => {
+  console.log('req.params: ', req.params)
+  productModel.getProductsByCategory(req.params.categoryId, (error, data) => {
+    if (error) {
+      console.log('Error: ', error)
+      res.status(304).json({
+        errorCode: 300,
+        message: error
+      })
+    } else {
+      res.status(200).json({
+        products: data
+      })
+    }
+  })
+}
