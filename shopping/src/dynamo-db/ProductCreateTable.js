@@ -1,14 +1,8 @@
-const AWS = require('aws-sdk')
-
-AWS.config.update({
-  region: 'us-west-2',
-  endpoint: 'http://localhost:8000'
-})
-
-const dynamodb = new AWS.DynamoDB()
+const { dynamoDB } = require('../config/DynamoDb.js')
+const tableName = 'Product_Shopping'
 
 const productTable = {
-  TableName: 'Product_Shopping',
+  TableName: tableName,
   KeySchema: [
     { AttributeName: 'categoryId', KeyType: 'HASH' }, // Partition key
     { AttributeName: 'id', KeyType: 'RANGE' } // Sort key
@@ -23,7 +17,7 @@ const productTable = {
   }
 }
 
-dynamodb.createTable(productTable, (err, data) => {
+dynamoDB.createTable(productTable, (err, data) => {
   if (err) {
     console.error('Unable to create table. Error JSON:', JSON.stringify(err, null, 2))
   } else {

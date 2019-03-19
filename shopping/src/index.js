@@ -4,10 +4,9 @@ import consign from 'consign'
 const PORT = 3000
 const app = express()
 
-app.set('json spaces', 4)
-
 consign()
-  .include('./src/routes')
+  .include('./src/utils/Middlewares.js')
+  .then('./src/routes')
   .into(app)
 
 app.listen(PORT, () => console.log(`Products API - Port ${PORT}`))
