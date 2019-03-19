@@ -34,6 +34,22 @@ exports.createProduct = (req, res) => {
       })
     } else {
       res.status(201).json({
+        products: product
+      })
+    }
+  })
+}
+
+exports.getProducts = (req, res) => {
+  productModel.getProducts((error, data) => {
+    if (error) {
+      console.log('Error: ', error)
+      res.status(304).json({
+        errorCode: 300,
+        message: error
+      })
+    } else {
+      res.status(200).json({
         products: data
       })
     }
