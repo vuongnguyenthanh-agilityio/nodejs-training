@@ -6,7 +6,7 @@ const app = express()
 
 consign()
   .include('./src/utils/Middlewares.js')
-  .then('./src/routes')
+  .then('./src/api/routes')
   .into(app)
 
 app.listen(PORT, () => console.log(`Products API - Port ${PORT}`))

@@ -34,7 +34,7 @@ exports.createProduct = (req, res) => {
       })
     } else {
       res.status(201).json({
-        products: product
+        message: 'Create product successfully'
       })
     }
   })
@@ -44,7 +44,7 @@ exports.getProducts = (req, res) => {
   productModel.getProducts((error, data) => {
     if (error) {
       console.log('Error: ', error)
-      res.status(304).json({
+      res.status(500).json({
         errorCode: 300,
         message: error
       })

@@ -1,4 +1,4 @@
-const { documentClient } = require('../config/DynamoDb.js')
+const { documentClient } = require('../../config/DynamoDb.js')
 
 const tableName = 'Product_Shopping'
 

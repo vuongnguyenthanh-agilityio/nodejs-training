@@ -3,10 +3,12 @@ const { dynamoDB } = require('../config/DynamoDb.js')
 const productTable = {
   TableName: 'User_Shopping',
   KeySchema: [
-    { AttributeName: 'id', KeyType: 'HASH' } // Partition key
+    { AttributeName: 'username', KeyType: 'HASH' }, // Partition key
+    { AttributeName: 'companyId', KeyType: 'RANGE' } // Sort key
   ],
   AttributeDefinitions: [
-    { AttributeName: 'id', AttributeType: 'S' }
+    { AttributeName: 'username', AttributeType: 'S' },
+    { AttributeName: 'companyId', AttributeType: 'S' }
   ],
   ProvisionedThroughput: {
     ReadCapacityUnits: 10,
