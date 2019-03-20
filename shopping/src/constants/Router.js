@@ -1,7 +1,7 @@
 const rootRouter = '/api/v1'
 
 const ROUTER = {
-  AUTH_REGITER: `${rootRouter}/auth/regiter`,
+  AUTH_REGISTER: `${rootRouter}/auth/register`,
   AUTH_LOGIN: `${rootRouter}/auth/login`,
   AUTH_LOGOUT: `${rootRouter}/auth/logout`,
   PRODUCTS: `${rootRouter}/products`,

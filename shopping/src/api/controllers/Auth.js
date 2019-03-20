@@ -4,7 +4,7 @@ const jwtConfig = require('../../config/PassportJwt.js')
 
 const userModel = require('../models/Users.js')
 
-exports.regiter = (req, res) => {
+exports.register = (req, res) => {
   console.log('reqbody: ', req.body)
 
   const { body: { companyId, name, username, password, photos } } = req
