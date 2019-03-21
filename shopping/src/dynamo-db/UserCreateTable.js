@@ -8,7 +8,23 @@ const productTable = {
   ],
   AttributeDefinitions: [
     { AttributeName: 'username', AttributeType: 'S' },
-    { AttributeName: 'companyId', AttributeType: 'S' }
+    { AttributeName: 'companyId', AttributeType: 'S' },
+    { AttributeName: 'id', AttributeType: 'S' }
+  ],
+  GlobalSecondaryIndexes: [
+    {
+      IndexName: 'UserID_Index',
+      KeySchema: [
+        { AttributeName: 'id', KeyType: 'HASH' }
+      ],
+      Projection: {
+        ProjectionType: 'KEYS_ONLY'
+      },
+      ProvisionedThroughput: {
+        ReadCapacityUnits: 10,
+        WriteCapacityUnits: 10
+      }
+    }
   ],
   ProvisionedThroughput: {
     ReadCapacityUnits: 10,

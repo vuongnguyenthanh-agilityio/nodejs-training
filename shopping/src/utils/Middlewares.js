@@ -7,6 +7,7 @@ module.exports = app => {
     extended: true
   }))
   app.use(bodyParser.json())
+  app.use(app.utils.Authentication.initialize())
   app.use((req, res, next) => {
     delete req.body.id
     next()

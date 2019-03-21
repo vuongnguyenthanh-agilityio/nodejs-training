@@ -4,7 +4,8 @@
   "description": "Management products for shopping",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node ./src/index.js"
+    "start": "nodemon --exec babel-node ./src/index.js",
+    "stop": "pkill --signal SIGINT myApp"
   },
   "keywords": [
     "npm"
@@ -31,5 +32,8 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "nodemon": "^1.18.10"
+  },
+  "resolutions": {
+    "nodemon/pstree.remy": "1.1.0"
   }
 }

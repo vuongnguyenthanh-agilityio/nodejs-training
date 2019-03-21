@@ -5,8 +5,6 @@ const jwtConfig = require('../../config/PassportJwt.js')
 const userModel = require('../models/Users.js')
 
 exports.register = (req, res) => {
-  console.log('reqbody: ', req.body)
-
   const { body: { companyId, name, username, password, photos } } = req
 
   if (!companyId) {
@@ -29,7 +27,6 @@ exports.register = (req, res) => {
 
   userModel.createUser(user, (error, data) => {
     if (error) {
-      console.log('Error: ', error)
       res.status(304).json({
         errorCode: 300,
         message: error
@@ -43,26 +40,25 @@ exports.register = (req, res) => {
 }
 
 exports.login = (req, res) => {
-  console.log('req.body: ', req.body)
-  console.log('req.params: ', req.params)
   const { body: { username, password } } = req
   userModel.getUserByUsername(username, (error, data) => {
     if (error) {
-      console.log('Error: ', error)
       res.status(500).json({
         errorCode: 300,
         message: error
       })
     } else {
-      console.log('Data: ', data)
-      if (bcrypt.compareSync(data.password, password)) {
-        const payload = { id: data.id, username: data.username }
+      const { Items: [ user ] } = data
+      if (bcrypt.compareSync(password, user.password)) {
+        const payload = { id: user.id, username: user.username }
         res.status(200).json({
-          token: jwt.encode(payload, jwtConfig.jwtSecret),
-          user: data
+          token: jwt.encode(payload, jwtConfig.jwtSecret)
         })
       } else {
-        res.sendStatus(401)
+        res.status(401).json({
+          errorCode: 100,
+          message: 'Incorrect password'
+        })
       }
     }
   })

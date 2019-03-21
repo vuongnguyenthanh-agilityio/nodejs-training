@@ -1,6 +1,7 @@
 const { documentClient } = require('../../config/DynamoDb.js')
 
 const tableName = 'User_Shopping'
+const globalIndexName = 'UserID_Index'
 
 exports.createUser = (user, callback) => {
   const params = {
@@ -27,6 +28,22 @@ exports.getUserByUsername = (username, callback) => {
     },
     ExpressionAttributeValues: {
       ':username': username
+    }
+  }
+
+  documentClient.query(params, callback)
+}
+
+exports.getUserById = (id, callback) => {
+  var params = {
+    TableName: tableName,
+    IndexName: globalIndexName,
+    KeyConditionExpression: '#id = :id',
+    ExpressionAttributeNames: {
+      '#id': 'id'
+    },
+    ExpressionAttributeValues: {
+      ':id': id
     }
   }
 
