@@ -1,5 +1,5 @@
 module.exports = app => {
   app.get('/', (req, res) => {
-    res.json({ status: 'Products Api' })
+    res.status(200).json({ status: 'Products Api' })
   })
 }

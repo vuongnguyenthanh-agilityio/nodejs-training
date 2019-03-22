@@ -6,10 +6,12 @@ process.title = 'myApp'
 const PORT = 3000
 const app = express()
 
-consign({ cwd: path.join(__dirname) })
+consign({ verbose: false, cwd: path.join(__dirname) })
   .include('./utils/Authentication.js')
   .then('./utils/Middlewares.js')
   .then('./api/routes')
   .into(app)
 
 app.listen(PORT, () => console.log(`Products API - Port ${PORT}`))
+
+module.exports = app
