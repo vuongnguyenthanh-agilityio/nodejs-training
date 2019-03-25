@@ -1,6 +1,6 @@
 const { documentClient } = require('../../config/DynamoDb.js')
 
-const tableName = 'Product_Shopping'
+const tableName = process.env.NODE_ENV === 'test' ? 'Product_Shopping_Test' : 'Product_Shopping'
 
 exports.createProduct = (product, callback) => {
   const params = {

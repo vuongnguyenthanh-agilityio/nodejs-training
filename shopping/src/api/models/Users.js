@@ -1,6 +1,6 @@
 const { documentClient } = require('../../config/DynamoDb.js')
 
-const tableName = 'User_Shopping'
+const tableName = process.env.NODE_ENV === 'test' ? 'User_Shopping_Test' : 'User_Shopping'
 const globalIndexName = 'UserID_Index'
 
 exports.createUser = (user, callback) => {
