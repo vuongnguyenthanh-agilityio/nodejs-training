@@ -49,7 +49,7 @@ exports.login = (req, res) => {
       })
     } else {
       const { Items: [ user ] } = data
-      if (bcrypt.compareSync(password, user.password)) {
+      if (user && bcrypt.compareSync(password, user.password)) {
         const payload = { id: user.id, username: user.username }
         res.status(200).json({
           token: jwt.encode(payload, jwtConfig.jwtSecret)

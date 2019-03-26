@@ -12,6 +12,8 @@ consign({ verbose: false, cwd: path.join(__dirname) })
   .then('./api/routes')
   .into(app)
 
-app.listen(PORT, () => console.log(`Products API - Port ${PORT}`))
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => console.log(`Products API - Port ${PORT}`))
+}
 
 module.exports = app

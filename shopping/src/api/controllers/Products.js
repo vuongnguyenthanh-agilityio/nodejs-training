@@ -50,7 +50,7 @@ exports.getProducts = (req, res) => {
       })
     } else {
       res.status(200).json({
-        products: data
+        products: data.Items ? data.Items : []
       })
     }
   })
@@ -67,7 +67,7 @@ exports.getProductsByCategory = (req, res) => {
       })
     } else {
       res.status(200).json({
-        products: data
+        products: data.Items ? data.Items : []
       })
     }
   })
