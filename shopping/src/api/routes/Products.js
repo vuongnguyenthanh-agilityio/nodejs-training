@@ -37,6 +37,6 @@ module.exports = app => {
     .get(productControler.getProducts)
 
   app.route(ROUTER.PRODUCTS_BY_CATEGORY_ID)
-    // .all(app.utils.Authentication.authenticate())
+    .all(app.utils.Authentication.authenticate())
     .get(productControler.getProductsByCategory)
 }

@@ -1,3 +1,4 @@
+import logger from '../../utils/Logger.js'
 const productModel = require('../models/Products.js')
 
 exports.createProduct = (req, res) => {
@@ -60,7 +61,9 @@ exports.getProductsByCategory = (req, res) => {
   console.log('req.params: ', req.params)
   productModel.getProductsByCategory(req.params.categoryId, (error, data) => {
     if (error) {
+      logger.info('Controler - Productget - ProductsByCategory', error)
       console.log('Error: ', error)
+
       res.status(304).json({
         errorCode: 300,
         message: error

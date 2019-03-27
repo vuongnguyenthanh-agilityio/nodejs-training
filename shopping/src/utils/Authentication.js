@@ -1,3 +1,4 @@
+import logger from './Logger.js'
 const passport = require('passport')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 
@@ -5,7 +6,6 @@ const userModel = require('../api/models/Users.js')
 const jwtConfig = require('../config/PassportJwt.js')
 
 module.exports = app => {
-  console.log('Authentication: ')
   const params = {
     secretOrKey: jwtConfig.jwtSecret,
     jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer')
@@ -15,10 +15,10 @@ module.exports = app => {
     console.log('payload: ', payload)
     userModel.getUserById(payload.id, (error, data) => {
       console.log('Error: ', error)
+      logger.info('Authecation: Get User ID ', error)
       if (error) {
         return done(null, false)
       }
-      console.log('Data: ', data)
       const { Items: [ user ] } = data
       return done(null, {
         id: user.id,
