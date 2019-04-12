@@ -10,7 +10,7 @@ export default gql`
 
   extend type Mutation {
     signUp(input: CreateUserInput!): Token!
-    signIn(login: String!, password: String!): Token!
+    signIn(username: String!, password: String!): Token!
     deleteUser(id: ID!): Boolean!
   }
 

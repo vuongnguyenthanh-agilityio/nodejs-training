@@ -17,13 +17,9 @@ export default class UserModel {
     }
 
     // Check user already exists
-    try {
-      const res = await this.getUserByUsername(username)
-      if (res && res.Items && res.Items.length > 0) {
-        throw new ApolloError('User already exists ', 'ALREADY_EXISTS', { username })
-      }
-    } catch (error) {
-      throw new Error(error)
+    const res = await this.getUserByUsername(username)
+    if (res && res.Items && res.Items.length > 0) {
+      throw new ApolloError('User already exists ', 'ALREADY_EXISTS', { username })
     }
 
     const salt = bcrypt.genSaltSync()
@@ -49,14 +45,17 @@ export default class UserModel {
       phone: {
         S: phone.toString()
       },
-      address: {
-        S: address && address.toString()
-      },
       role: {
         S: role.toString()
       },
       datetime: {
         S: '2019-04-12'
+      }
+    }
+
+    if (address) {
+      item1.address = {
+        S: address && address.toString()
       }
     }
 
