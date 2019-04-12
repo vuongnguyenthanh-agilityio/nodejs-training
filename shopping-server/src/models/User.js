@@ -22,6 +22,7 @@ export default class UserModel {
       throw new ApolloError('User already exists ', 'ALREADY_EXISTS', { username })
     }
 
+    // encode password
     const salt = bcrypt.genSaltSync()
     const bcryptPassword = bcrypt.hashSync(password, salt)
 

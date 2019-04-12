@@ -8,8 +8,8 @@
     "start": "NODE_ENV=development nodemon --exec babel-node src/index.js",
     "start-dynamodb": "./scripts/dynamodb.sh",
     "start-gui-dynamodb": "./dynamo-local/DynamoDbGUI-linux-x86_64-2.1.1.AppImage",
-    "create-table": " babel-node ./src/utils/CreateShoppingTable.js",
-    "delete-table": " babel-node ./src/utils/DeleteShoppingTable.js"
+    "create-table": " babel-node ./scripts/CreateShoppingTable.js",
+    "delete-table": " babel-node ./scripts/DeleteShoppingTable.js"
   },
   "keywords": [],
   "author": "",
