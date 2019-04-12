@@ -20,7 +20,7 @@ export default {
         { AttributeName: 'data', KeyType: 'RANGE' } // Sort key
       ],
       Projection: {
-        ProjectionType: 'INCLUDE , datetime, name, price, description, amount, photos, discount, address, role, username, phone, name'
+        ProjectionType: 'ALL'
       },
       ProvisionedThroughput: {
         ReadCapacityUnits: 1,

@@ -7,7 +7,7 @@
 export const isValidateEmail = (email) => {
   let emailPattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 
-  return email.match(emailPattern)
+  return emailPattern.test(email)
 }
 
 /**

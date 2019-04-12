@@ -1,7 +1,8 @@
 import { AuthenticationError, UserInputError, ApolloError } from 'apollo-server'
 import uuidv4 from 'uuid/v4'
+import bcrypt from 'bcrypt'
 
-import { isValideEmail, isValidePhoneNumber } from '../utils/Validators'
+import { isValidateEmail, isValidatePhoneNumber } from '../utils/Validators'
 import Database from '../db'
 
 const tableName = 'Shopping'
@@ -11,17 +12,25 @@ export default class UserModel {
   async createUser (user) {
     const { username, name, phone, address, password, role } = user
     // Check valide username
-    if (!isValideEmail(username) || !isValidePhoneNumber(phone) || !name || !password) {
-      throw new UserInputError('Form Arguments invalid', { invalidArgs: username })
+    if (!isValidateEmail(username)) {
+      throw new UserInputError('User invalid', { username: username })
     }
 
     // Check user already exists
-    const res = await this.getUserByUsername(username)
-    if (res && res.Item) {
-      throw new ApolloError('User already exists ', 'EXISTS', { username })
+    try {
+      const res = await this.getUserByUsername(username)
+      if (res && res.Items && res.Items.length > 0) {
+        throw new ApolloError('User already exists ', 'ALREADY_EXISTS', { username })
+      }
+    } catch (error) {
+      throw new Error(error)
     }
+
+    const salt = bcrypt.genSaltSync()
+    const bcryptPassword = bcrypt.hashSync(password, salt)
+
     const id = uuidv4()
-    const item = {
+    const item1 = {
       pk: {
         S: `User_${id}`
       },
@@ -38,33 +47,96 @@ export default class UserModel {
         S: name.toString()
       },
       phone: {
-        N: phone.toString()
+        S: phone.toString()
       },
       address: {
-        S: address.toString()
-      },
-      password: {
-        S: password.toString()
+        S: address && address.toString()
       },
       role: {
         S: role.toString()
+      },
+      datetime: {
+        S: '2019-04-12'
+      }
+    }
+
+    const item2 = {
+      pk: {
+        S: `User_${id}`
+      },
+      sk: {
+        S: 'USER_LOGIN'
+      },
+      data: {
+        S: username.toString()
+      },
+      password: {
+        S: bcryptPassword.toString()
+      },
+      role: {
+        S: role.toString()
+      },
+      datetime: {
+        S: '2019-04-12'
       }
     }
 
     const db = await this.getDatabase()
-    await db.putItem({
-      TableName: tableName,
-      Item: item
-    })
+    try {
+      await db.putItem({
+        TableName: tableName,
+        Item: item1
+      })
+      await db.putItem({
+        TableName: tableName,
+        Item: item2
+      })
+      // FIXME: Will update
+
+      // await db.batchWriteItem({
+      //   RequestItems: {
+      //     tableName: [
+      //       {
+      //         PutRequest: {
+      //           Item: item1
+      //         }
+      //       },
+      //       {
+      //         PutRequest: {
+      //           Item: item2
+      //         }
+      //       }
+      //     ]
+      //   }
+      // })
+    } catch (error) {
+      throw new Error(error)
+    }
+    return {
+      id: `User_${id}`,
+      username,
+      name,
+      phone,
+      role,
+      address
+    }
   }
 
   async getUserByUsername (username) {
     const db = await this.getDatabase()
-    return db.getItem({
+    return db.query({
       TableName: tableName,
       IndexName: globalIndexOne,
-      Key: {
-        username: {
+      KeyConditionExpression: '#pk = :pk AND #sk = :sk',
+      ExpressionAttributeNames: {
+        '#pk': 'sk',
+        '#sk': 'data'
+      },
+      ExpressionAttributeValues: {
+        ':pk': {
+          S: 'USER_LOGIN'
+        },
+        ':sk': {
           S: username.toString()
         }
       }

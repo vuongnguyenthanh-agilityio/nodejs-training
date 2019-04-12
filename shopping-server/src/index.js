@@ -1,22 +1,14 @@
+import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
 import { ApolloServer, gql } from 'apollo-server-express'
 
 import schema from './schema'
-import userModel from './models/User'
+import UserModel from './models/User'
+import resolvers from './resolvers'
 
 const app = express()
 app.use(cors())
-
-const resolvers = {
-  Query: {
-    me: () => {
-      return {
-        username: 'VuongNguyen'
-      }
-    }
-  }
-}
 
 // creating the server
 const server = new ApolloServer({
@@ -25,16 +17,12 @@ const server = new ApolloServer({
   typeDefs: schema,
   resolvers,
 
-  // initial context state, will be available in resolvers
-  context: () => ({}),
-
-  // an object that goes to the "context" argument
-  // when executing resolvers
-  models: () => {
-    return {
-      userModel
-    }
-  }
+  context: async () => ({
+    models: {
+      user: new UserModel()
+    },
+    secret: process.env.SECRET
+  })
 })
 
 server.applyMiddleware({ app, path: '/graphql' })

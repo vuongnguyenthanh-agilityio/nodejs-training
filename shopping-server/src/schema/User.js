@@ -2,13 +2,14 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   extend type Query {
+    me: User
     getUsers: [User!]
     getUsersbyRole(role: String!): [User!]
     getUserById(id: ID!): User
   }
 
   extend type Mutation {
-    signUp(input: CreateUserInput): Token!
+    signUp(input: CreateUserInput!): Token!
     signIn(login: String!, password: String!): Token!
     deleteUser(id: ID!): Boolean!
   }
@@ -22,16 +23,16 @@ export default gql`
     id: ID!
     username: String!
     name: String!
-    phone: Int!
+    phone: String!
     role: String!
     address: String
     photos: [String!]
   }
 
-  type CreateUserInput {
+  input CreateUserInput {
     username: String!
     name: String!
-    phone: Int!
+    phone: String!
     role: String!
     password: String!
     address: String

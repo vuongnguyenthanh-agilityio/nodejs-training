@@ -54,6 +54,42 @@ export default class Database {
     })
   }
 
+  async batchWriteItem (params) {
+    return new Promise((resolve, reject) => {
+      this.connection.batchWriteItem(params, (err, data) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(data)
+        }
+      })
+    })
+  }
+
+  async batchGetItem (params) {
+    return new Promise((resolve, reject) => {
+      this.connection.batchGetItem(params, (err, data) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(data)
+        }
+      })
+    })
+  }
+
+  async query (params) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(params, (err, data) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(data)
+        }
+      })
+    })
+  }
+
   async scan (params = {}) {
     return new Promise((resolve, reject) => {
       this.connection.scan(params, (err, data) => {
