@@ -41,22 +41,20 @@ const registerUser = async (parent, { input }, { models, secret }) => {
 * @return {object}
 */
 const signIn = async (parent, { username, password }, { models, secret }) => {
-  const res = await models.user.getUserByUsername(username)
-  const users = res && res.Items ? res && res.Items : []
-  if (users.length === 0) {
+  const user = await models.user.getUserByUsername(username)
+  if (!user) {
     throw new UserInputError('No user found with this login credentials.')
   }
 
   // Check validate passowrd
-  console.log('User: ', users)
-  // const bcryptPassword =
-  const isValid = await bcrypt.compare(password, users[0].password)
+  const isValid = await bcrypt.compare(password, user.password)
   if (!isValid) {
     throw new AuthenticationError('Invalid password.')
   }
-  const token = createToken(users[0], secret, '30m')
+  const token = createToken(user, secret, '30m')
   return {
-    token
+    token,
+    user
   }
 }
 

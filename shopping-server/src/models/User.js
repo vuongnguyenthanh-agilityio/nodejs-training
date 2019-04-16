@@ -17,8 +17,8 @@ export default class UserModel {
     }
 
     // Check user already exists
-    const res = await this.getUserByUsername(username)
-    if (res && res.Items && res.Items.length > 0) {
+    const userExists = await this.getUserByUsername(username)
+    if (userExists) {
       throw new ApolloError('User already exists ', 'ALREADY_EXISTS', { username })
     }
 
@@ -115,16 +115,13 @@ export default class UserModel {
     return {
       id: `User_${id}`,
       username,
-      name,
-      phone,
-      role,
-      address
+      role
     }
   }
 
-  async getUserByUsername (username) {
+  async getUserByUsername (username = '') {
     const db = await this.getDatabase()
-    return db.query({
+    const param = {
       TableName: tableName,
       IndexName: globalIndexOne,
       KeyConditionExpression: '#pk = :pk AND #sk = :sk',
@@ -140,7 +137,17 @@ export default class UserModel {
           S: username.toString()
         }
       }
-    })
+    }
+    const results = await db.query(param)
+    if (results && results.Items && results.Items.length > 0) {
+      const user = results.Items[0]
+      return {
+        id: user.pk.S,
+        username: user.data.S,
+        role: user.role.S,
+        password: user.password.S
+      }
+    }
   }
 
   /**

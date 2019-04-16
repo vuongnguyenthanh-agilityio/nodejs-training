@@ -22,9 +22,9 @@ export default gql`
   type User {
     id: ID!
     username: String!
-    name: String!
-    phone: String!
     role: String!
+    name: String
+    phone: String
     address: String
     photos: [String!]
   }
