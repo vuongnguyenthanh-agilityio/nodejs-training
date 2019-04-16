@@ -1,11 +1,13 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import { ApolloServer, gql } from 'apollo-server-express'
+import { ApolloServer } from 'apollo-server-express'
 
 import schema from './schema'
-import UserModel from './models/User'
+import models from './models'
 import resolvers from './resolvers'
+
+process.title = 'myApp'
 
 const app = express()
 app.use(cors())
@@ -18,9 +20,7 @@ const server = new ApolloServer({
   resolvers,
 
   context: async () => ({
-    models: {
-      user: new UserModel()
-    },
+    models,
     secret: process.env.SECRET
   })
 })

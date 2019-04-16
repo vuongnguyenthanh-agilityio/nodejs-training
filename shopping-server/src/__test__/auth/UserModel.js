@@ -1,9 +1,8 @@
-import { UserInputError, ApolloError } from 'apollo-server'
+
 import uuidv4 from 'uuid/v4'
 import bcrypt from 'bcrypt'
 
-import { isValidateEmail } from '../utils/Validators'
-import Database from '../db'
+import Database from '../../db'
 
 const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
@@ -11,19 +10,10 @@ const globalIndexOne = 'GSI_1'
 export default class UserModel {
   async createUser (user) {
     const { username, name, phone, address, password, role } = user
-    // Check valid some attribute that requires input
-    if (!username || !password || !role || !name || !phone) {
-      throw new UserInputError('Form input invalid.', { user })
-    }
-    // Check valide username
-    if (!isValidateEmail(username)) {
-      throw new UserInputError('Username invalid.', { username: username })
-    }
 
-    // Check user already exists
     const userExists = await this.getUserByUsername(username)
     if (userExists) {
-      throw new ApolloError('User already exists.', 'ALREADY_EXISTS', { username })
+      throw new Error('User already exists ', 'ALREADY_EXISTS', { username })
     }
 
     // encode password
@@ -49,6 +39,9 @@ export default class UserModel {
       },
       phone: {
         S: phone.toString()
+      },
+      role: {
+        S: role.toString()
       },
       datetime: {
         S: '2019-04-12'
@@ -92,24 +85,6 @@ export default class UserModel {
         TableName: tableName,
         Item: item2
       })
-      // FIXME: Will update
-
-      // await db.batchWriteItem({
-      //   RequestItems: {
-      //     tableName: [
-      //       {
-      //         PutRequest: {
-      //           Item: item1
-      //         }
-      //       },
-      //       {
-      //         PutRequest: {
-      //           Item: item2
-      //         }
-      //       }
-      //     ]
-      //   }
-      // })
     } catch (error) {
       console.log('Create user error: ', error)
       throw new Error(error)
@@ -155,7 +130,7 @@ export default class UserModel {
   async deleteUser (id = '') {
     const db = await this.getDatabase()
     try {
-      const user1 = await db.deleteItem({
+      await db.deleteItem({
         TableName: tableName,
         Key: {
           pk: {
@@ -164,11 +139,10 @@ export default class UserModel {
           sk: {
             S: 'USER_DETAIL'
           }
-        },
-        ReturnValues: 'ALL_OLD'
+        }
       })
 
-      const user2 = await db.deleteItem({
+      await db.deleteItem({
         TableName: tableName,
         Key: {
           pk: {
@@ -177,22 +151,8 @@ export default class UserModel {
           sk: {
             S: 'USER_LOGIN'
           }
-        },
-        ReturnValues: 'ALL_OLD'
+        }
       })
-
-      const { Attributes: { name, phone, address, photos } } = user1
-      const { Attributes: { pk, data, role } } = user2
-
-      return {
-        id: pk && pk.S,
-        username: data && data.S,
-        role: role && role.S,
-        name: name && name.S,
-        phone: phone && phone.S,
-        address: address && address.S,
-        photos: photos && photos.L
-      }
     } catch (error) {
       throw new Error(error)
     }
