@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=development nodemon --exec babel-node src/index.js",
     "test-server": "NODE_ENV=test nodemon --exec babel-node src/index.js",
-    "test": "jest --watchAll --verbose --runInBand",
+    "test": "jest --watchAll --verbose --runInBand --coverage",
     "start-dynamodb": "./scripts/dynamodb.sh",
     "start-gui-dynamodb": "./dynamo-local/DynamoDbGUI-linux-x86_64-2.1.1.AppImage",
     "create-table": " babel-node ./scripts/CreateShoppingTable.js",
