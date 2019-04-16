@@ -25,6 +25,7 @@ const createToken = async (user, secret, expiresIn) => {
 * @return {object}
 */
 const registerUser = async (parent, { input }, { models, secret }) => {
+  console.log('Input: ', input)
   const user = await models.user.createUser(input)
   const token = createToken(user, secret, '30m')
   return {
@@ -41,6 +42,11 @@ const registerUser = async (parent, { input }, { models, secret }) => {
 * @return {object}
 */
 const signIn = async (parent, { username, password }, { models, secret }) => {
+  // Check valid some attribute that requires input
+  if (!username || !password) {
+    throw new UserInputError('Form input invalid', { username, password })
+  }
+
   const user = await models.user.getUserByUsername(username)
   if (!user) {
     throw new UserInputError('No user found with this login credentials.')
@@ -58,21 +64,17 @@ const signIn = async (parent, { username, password }, { models, secret }) => {
   }
 }
 
-export default {
-  Query: {
-    me: () => {
-      return {
-        id: '123',
-        username: 'vuong@gmail.com',
-        name: 'vuong',
-        password: '123',
-        role: 'ADMIN'
-      }
-    }
-  },
+const deleteUser = async (parent, { id }, { models, secret }) => {
+  // Check valid some attribute that requires input
+  if (!id) {
+    throw new UserInputError('Form input invalid', { id })
+  }
+}
 
+export default {
   Mutation: {
     signUp: registerUser,
-    signIn: signIn
+    signIn: signIn,
+    deleteUser: deleteUser
   }
 }

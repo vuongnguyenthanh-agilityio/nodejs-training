@@ -5,15 +5,20 @@ import bcrypt from 'bcrypt'
 import { isValidateEmail, isValidatePhoneNumber } from '../utils/Validators'
 import Database from '../db'
 
-const tableName = 'Shopping'
+const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
 
 export default class UserModel {
   async createUser (user) {
+    console.log('Create user: ', user)
     const { username, name, phone, address, password, role } = user
+    // Check valid some attribute that requires input
+    if (!username || !password || !role || !name || !phone) {
+      throw new UserInputError('Form input invalid', { user })
+    }
     // Check valide username
     if (!isValidateEmail(username)) {
-      throw new UserInputError('User invalid', { username: username })
+      throw new UserInputError('Username invalid', { username: username })
     }
 
     // Check user already exists
@@ -45,9 +50,6 @@ export default class UserModel {
       },
       phone: {
         S: phone.toString()
-      },
-      role: {
-        S: role.toString()
       },
       datetime: {
         S: '2019-04-12'
@@ -110,6 +112,7 @@ export default class UserModel {
       //   }
       // })
     } catch (error) {
+      console.log('Create user: ', error)
       throw new Error(error)
     }
     return {
@@ -147,6 +150,52 @@ export default class UserModel {
         role: user.role.S,
         password: user.password.S
       }
+    }
+  }
+
+  async deleteUser (id = '') {
+    const db = await this.getDatabase()
+    try {
+      const user1 = await db.deleteItem({
+        TableName: tableName,
+        Key: {
+          pk: {
+            S: id.toString()
+          },
+          sk: {
+            S: 'USER_DETAIL'
+          }
+        },
+        ReturnValues: 'ALL_OLD'
+      })
+
+      const user2 = await db.deleteItem({
+        TableName: tableName,
+        Key: {
+          pk: {
+            S: id.toString()
+          },
+          sk: {
+            S: 'USER_LOGIN'
+          }
+        },
+        ReturnValues: 'ALL_OLD'
+      })
+
+      const { Attributes: { name, phone, address, photos } } = user1
+      const { Attributes: { pk, data, role } } = user2
+
+      return {
+        id: pk && pk.S,
+        username: data && data.S,
+        role: role && role.S,
+        name: name && name.S,
+        phone: phone && phone.S,
+        address: address && address.S,
+        photos: photos && photos.L
+      }
+    } catch (error) {
+      throw new Error(error)
     }
   }
 
