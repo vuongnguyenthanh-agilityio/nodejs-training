@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=development nodemon --exec babel-node src/index.js",
+    "test-server": "NODE_ENV=test nodemon --exec babel-node src/index.js",
+    "test": "jest --watchAll --verbose --runInBand",
     "start-dynamodb": "./scripts/dynamodb.sh",
     "start-gui-dynamodb": "./dynamo-local/DynamoDbGUI-linux-x86_64-2.1.1.AppImage",
     "create-table": " babel-node ./scripts/CreateShoppingTable.js",
@@ -30,12 +31,15 @@
     "@babel/core": "^7.4.0",
     "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.4.2",
+    "axios": "^0.18.0",
+    "babel-jest": "^24.7.1",
     "eslint": "^5.15.3",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.7.1",
     "nodemon": "^1.18.10"
   }
 }

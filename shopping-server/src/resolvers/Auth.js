@@ -44,7 +44,7 @@ const registerUser = async (parent, { input }, { models, secret }) => {
 const signIn = async (parent, { username, password }, { models, secret }) => {
   // Check valid some attribute that requires input
   if (!username || !password) {
-    throw new UserInputError('Form input invalid', { username, password })
+    throw new UserInputError('Form input invalid.', { username, password })
   }
 
   const user = await models.user.getUserByUsername(username)

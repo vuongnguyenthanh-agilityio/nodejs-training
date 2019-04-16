@@ -1,4 +1,5 @@
-const tableName = 'Shopping'
+
+const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 
 export default {
   TableName: tableName,
