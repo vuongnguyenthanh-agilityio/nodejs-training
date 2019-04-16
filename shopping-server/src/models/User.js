@@ -10,21 +10,20 @@ const globalIndexOne = 'GSI_1'
 
 export default class UserModel {
   async createUser (user) {
-    console.log('Create user: ', user)
     const { username, name, phone, address, password, role } = user
     // Check valid some attribute that requires input
     if (!username || !password || !role || !name || !phone) {
-      throw new UserInputError('Form input invalid', { user })
+      throw new UserInputError('Form input invalid.', { user })
     }
     // Check valide username
     if (!isValidateEmail(username)) {
-      throw new UserInputError('Username invalid', { username: username })
+      throw new UserInputError('Username invalid.', { username: username })
     }
 
     // Check user already exists
     const userExists = await this.getUserByUsername(username)
     if (userExists) {
-      throw new ApolloError('User already exists ', 'ALREADY_EXISTS', { username })
+      throw new ApolloError('User already exists.', 'ALREADY_EXISTS', { username })
     }
 
     // encode password

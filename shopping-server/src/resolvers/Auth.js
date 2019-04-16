@@ -25,7 +25,6 @@ const createToken = async (user, secret, expiresIn) => {
 * @return {object}
 */
 const registerUser = async (parent, { input }, { models, secret }) => {
-  console.log('Input: ', input)
   const user = await models.user.createUser(input)
   const token = createToken(user, secret, '30m')
   return {
