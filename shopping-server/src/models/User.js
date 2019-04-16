@@ -1,8 +1,8 @@
-import { AuthenticationError, UserInputError, ApolloError } from 'apollo-server'
+import { UserInputError, ApolloError } from 'apollo-server'
 import uuidv4 from 'uuid/v4'
 import bcrypt from 'bcrypt'
 
-import { isValidateEmail, isValidatePhoneNumber } from '../utils/Validators'
+import { isValidateEmail } from '../utils/Validators'
 import Database from '../db'
 
 const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
@@ -111,7 +111,7 @@ export default class UserModel {
       //   }
       // })
     } catch (error) {
-      console.log('Create user: ', error)
+      console.log('Create user error: ', error)
       throw new Error(error)
     }
     return {

@@ -1,5 +1,5 @@
 
-import { AuthenticationError, UserInputError } from 'apollo-server'
+import { UserInputError } from 'apollo-server'
 
 const deleteUser = async (parent, { id }, { models }) => {
   // Check valid some attribute that requires input
@@ -11,18 +11,6 @@ const deleteUser = async (parent, { id }, { models }) => {
 }
 
 export default {
-  Query: {
-    me: () => {
-      return {
-        id: '123',
-        username: 'vuong@gmail.com',
-        name: 'vuong',
-        password: '123',
-        role: 'ADMIN'
-      }
-    }
-  },
-
   Mutation: {
     deleteUser: deleteUser
   }

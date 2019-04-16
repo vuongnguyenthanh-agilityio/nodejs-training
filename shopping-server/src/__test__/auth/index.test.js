@@ -22,7 +22,6 @@ describe('SignIn', () => {
       userId = res.id
       return res
     } catch (error) {
-      console.log('Error: ', error)
       throw new Error(error)
     }
   })
@@ -33,7 +32,6 @@ describe('SignIn', () => {
       const res = await userModel.deleteUser(userId)
       return res
     } catch (error) {
-      console.log('Error: ', error)
       throw new Error(error)
     }
   })
@@ -93,7 +91,6 @@ describe('SignUp', () => {
       const res = await userModel.deleteUser(userId)
       return res
     } catch (error) {
-      console.log('Error: ', error)
       throw new Error(error)
     }
   })
@@ -174,7 +171,6 @@ describe('SignUp with username already exists', () => {
       userId = res.id
       return res
     } catch (error) {
-      console.log('Error: ', error)
       throw new Error(error)
     }
   })
@@ -185,7 +181,6 @@ describe('SignUp with username already exists', () => {
       const res = await userModel.deleteUser(userId)
       return res
     } catch (error) {
-      console.log('Error: ', error)
       throw new Error(error)
     }
   })

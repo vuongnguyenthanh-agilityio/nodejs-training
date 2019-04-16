@@ -63,17 +63,9 @@ const signIn = async (parent, { username, password }, { models, secret }) => {
   }
 }
 
-const deleteUser = async (parent, { id }, { models, secret }) => {
-  // Check valid some attribute that requires input
-  if (!id) {
-    throw new UserInputError('Form input invalid', { id })
-  }
-}
-
 export default {
   Mutation: {
     signUp: registerUser,
-    signIn: signIn,
-    deleteUser: deleteUser
+    signIn: signIn
   }
 }

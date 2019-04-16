@@ -86,7 +86,7 @@ export default class UserModel {
         Item: item2
       })
     } catch (error) {
-      console.log('Create user: ', error)
+      console.log('Create user error: ', error)
       throw new Error(error)
     }
     return {

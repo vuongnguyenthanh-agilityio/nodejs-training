@@ -3,7 +3,6 @@ import axios from 'axios'
 const API_URL = 'http://localhost:9000/graphql'
 
 export const signIn = async variables => {
-  console.log('variables: ', variables)
   try {
     const results = await axios.post(API_URL, {
       query: `
@@ -27,7 +26,6 @@ export const signIn = async variables => {
 }
 
 export const signUp = async variables => {
-  console.log('variables: ', variables)
   try {
     const results = await axios.post(API_URL, {
       query: `
