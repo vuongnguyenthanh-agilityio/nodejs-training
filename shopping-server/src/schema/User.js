@@ -2,9 +2,8 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   extend type Query {
-    me: User
     getUsers: [User!]
-    getUsersbyRole(role: String!): [User!]
+    getUsersByRole(role: String!): [User!]
     getUserById(id: ID!): User
   }
 

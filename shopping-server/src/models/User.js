@@ -1,4 +1,4 @@
-import { UserInputError, ApolloError } from 'apollo-server'
+import { UserInputError, ApolloError, ForbiddenError } from 'apollo-server'
 import uuidv4 from 'uuid/v4'
 import bcrypt from 'bcrypt'
 
@@ -18,6 +18,11 @@ export default class UserModel {
     // Check valide username
     if (!isValidateEmail(username)) {
       throw new UserInputError('Username invalid.', { username: username })
+    }
+
+    // Check permission
+    if (role === 'ADMIN') {
+      throw new ForbiddenError('No permission register this user')
     }
 
     // Check user already exists
@@ -57,7 +62,7 @@ export default class UserModel {
 
     if (address) {
       item1.address = {
-        S: address && address.toString()
+        S: address.toString()
       }
     }
 
@@ -152,6 +157,76 @@ export default class UserModel {
     }
   }
 
+  async getUsersByRole (role = '') {
+    const db = await this.getDatabase()
+    const param = {
+      TableName: tableName,
+      IndexName: globalIndexOne,
+      KeyConditionExpression: '#pk = :pk AND #sk = :sk',
+      ExpressionAttributeNames: {
+        '#pk': 'sk',
+        '#sk': 'data'
+      },
+      ExpressionAttributeValues: {
+        ':pk': {
+          S: 'USER_DETAIL'
+        },
+        ':sk': {
+          S: role.toString()
+        }
+      }
+    }
+    const results = await db.query(param)
+    if (results && results.Items && results.Items.length > 0) {
+      const users = results.Items
+      return users.map(user => {
+        const { pk, data, name, username, phone, address, photos } = user
+        return {
+          id: pk.S,
+          role: data && data.S,
+          username: username && username.S,
+          name: name && name.S,
+          phone: phone && phone.S,
+          address: address && address.S,
+          photos: photos && photos.L
+        }
+      })
+    }
+  }
+
+  async getUsers () {
+    const db = await this.getDatabase()
+    const param = {
+      TableName: tableName,
+      IndexName: globalIndexOne,
+      KeyConditionExpression: '#pk = :pk',
+      ExpressionAttributeNames: {
+        '#pk': 'sk'
+      },
+      ExpressionAttributeValues: {
+        ':pk': {
+          S: 'USER_DETAIL'
+        }
+      }
+    }
+    const results = await db.query(param)
+    if (results && results.Items && results.Items.length > 0) {
+      const users = results.Items
+      return users.map(user => {
+        const { pk, data, name, username, phone, address, photos } = user
+        return {
+          id: pk.S,
+          role: data && data.S,
+          username: username && username.S,
+          name: name && name.S,
+          phone: phone && phone.S,
+          address: address && address.S,
+          photos: photos && photos.L
+        }
+      })
+    }
+  }
+
   async getUserById (id = '') {
     const db = await this.getDatabase()
     const param = {
@@ -165,13 +240,13 @@ export default class UserModel {
         }
       }
     }
-    const results = db.getItem(param)
+    const results = await db.getItem(param)
 
     if (results && results.Item) {
       const user = results.Item
       const { pk, data, name, username, phone, address, photos } = user
       return {
-        id: pk && pk.S,
+        id: pk.S,
         role: data && data.S,
         username: username && username.S,
         name: name && name.S,
