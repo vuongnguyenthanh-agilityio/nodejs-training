@@ -43,7 +43,7 @@ const updateCategory = async (parent, { input }, { models, currentUser }) => {
 export default {
   Query: {
     getCategories: combineResolvers(
-      isAdminRole,
+      isAuthenticated,
       getCategories
     ),
     getCategoryById: combineResolvers(

@@ -30,8 +30,9 @@ export const isPermissionDeleteUser = combineResolvers(
 
 export const isPermissionModifyCategory = combineResolvers(
   isAuthenticated,
-  async (parent, { input: { id } }, { models, currentUser: { role, id: userId } }) => {
-    const category = await models.category.getCategoryById(id)
+  async (parent, { id, input }, { models, currentUser: { role, id: userId } }) => {
+    const categoryId = (input && input.id) ? input.id : id
+    const category = await models.category.getCategoryById(categoryId)
     if (role !== 'ADMIN' && (category && userId !== category.createdBy)) {
       throw new ForbiddenError('No permission.')
     }

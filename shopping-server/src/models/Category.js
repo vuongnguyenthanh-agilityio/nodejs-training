@@ -146,47 +146,65 @@ export default class CategoryModel {
     const db = await this.getDatabase()
     const { datetime, parentId, createdBy } = filter
     // Condition for create filter
-    const filterValue = `
-      ${datetime ? '#datetime = :datetime' : ''}
-      ${parentId ? '#parentId = :parentId' : ''}
-      ${createdBy && createdBy.id ? '#createdBy.#id = :createdByUserId' : ''}
-      ${createdBy && createdBy.role ? '#createdBy.#role = :createdByUserRole' : ''}
-    `
+    // const filterValue = `
+    //   ${datetime ? '#datetime = :datetime' : ''}
+    //   ${parentId ? '#parentId = :parentId' : ''}
+    //   ${createdBy && createdBy.id ? '#createdBy.#id = :createdByUserId' : ''}
+    //   ${createdBy && createdBy.role ? '#createdBy.#role = :createdByUserRole' : ''}
+    // `
+    // const expressionAttributeValues = {
+    //   ':pk': {
+    //     S: 'CATEGORY_DETAIL'
+    //   }
+    // }
+
+    // if (datetime) {
+    //   expressionAttributeValues[':datetime'] = {
+    //     S: datetime
+    //   }
+    // }
+
+    // if (parentId) {
+    //   expressionAttributeValues[':parentId'] = {
+    //     S: parentId
+    //   }
+    // }
+
+    // if (createdBy && createdBy.id) {
+    //   expressionAttributeValues[':createdByUserId'] = {
+    //     S: createdBy.id
+    //   }
+    // }
+
+    // if (createdBy && createdBy.role) {
+    //   expressionAttributeValues[':createdByUserRole'] = {
+    //     S: createdBy.role
+    //   }
+    // }
+
     const param = {
       TableName: tableName,
       IndexName: globalIndexOne,
       KeyConditionExpression: '#pk = :pk',
-      FilterExpression: filterValue,
+      // FilterExpression: filterValue,
       ExpressionAttributeNames: {
-        '#pk': 'sk',
-        '#datetime': 'datetime',
-        '#parentId': 'parentId',
-        '#createdBy': 'createdBy',
-        '#id': 'id',
-        '#role': 'role'
+        '#pk': 'sk'
+        // '#datetime': 'datetime',
+        // '#parentId': 'parentId',
+        // '#createdBy': 'createdBy',
+        // '#id': 'id',
+        // '#role': 'role'
       },
       ExpressionAttributeValues: {
         ':pk': {
           S: 'CATEGORY_DETAIL'
-        },
-        ':datetime': {
-          S: datetime
-        },
-        ':parentId': {
-          S: parentId
-        },
-        ':createdByUserId': {
-          S: createdBy && createdBy.id
-        },
-        ':createdByUserRole': {
-          S: createdBy && createdBy.role
         }
       }
     }
     const results = await db.query(param)
 
     if (results && results.Items && results.Items.length > 0) {
-      results.Items.map(category => {
+      return results.Items.map(category => {
         const { pk, data, parentId, description, createdBy } = category
 
         return {
