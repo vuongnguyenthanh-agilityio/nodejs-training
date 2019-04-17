@@ -26,7 +26,7 @@ const createCategory = async (parent, { input }, { models, currentUser }) => {
     userId: currentUser.id,
     datetime: moment().format()
   }
-  const category = await models.category.createCategory(categoryInput)
+  const category = await models.category.putCategory(categoryInput)
   return category
 }
 
@@ -36,7 +36,7 @@ const updateCategory = async (parent, { input }, { models, currentUser }) => {
     userId: currentUser.id,
     datetime: moment().format()
   }
-  const category = await models.category.updateCategory(categoryInput)
+  const category = await models.category.putCategory(categoryInput)
   return category
 }
 

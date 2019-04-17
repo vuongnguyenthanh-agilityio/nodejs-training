@@ -7,9 +7,8 @@ const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
 
 export default class CategoryModel {
-  async createCategory (category) {
-    const { name, parentId, description, datetime, userId } = category
-    console.log('Category: ', category)
+  async putCategory (category) {
+    const { name, parentId, description, datetime, userId, id } = category
     // Check valid some attribute that requires input
     if (!name) {
       throw new UserInputError('Form input invalid.', { category })
@@ -17,15 +16,12 @@ export default class CategoryModel {
 
     // Check user already exists
     const categoryExists = await this.getCategoryByName(name)
-    if (categoryExists) {
+    if (!id && categoryExists) {
       throw new ApolloError('Category already exists.', 'ALREADY_EXISTS', { name })
     }
 
-    const id = uuidv4()
+    const uuid = uuidv4()
     const item = {
-      pk: {
-        S: `Category_${id}`
-      },
       sk: {
         S: 'CATEGORY_DETAIL'
       },
@@ -49,6 +45,16 @@ export default class CategoryModel {
       }
     }
 
+    if (id) {
+      item.pk = {
+        S: id
+      }
+    } else {
+      item.pk = {
+        S: `Category_${uuid}`
+      }
+    }
+
     const db = await this.getDatabase()
     try {
       await db.putItem({
@@ -59,7 +65,7 @@ export default class CategoryModel {
       throw new Error(error)
     }
     return {
-      id: `Category_${id}`,
+      id: `Category_${uuid}`,
       name,
       parentId,
       description,
@@ -67,7 +73,7 @@ export default class CategoryModel {
     }
   }
 
-  async getCategoryByName (name = '') {
+  async getCategoryByName (name) {
     // Check valid some attribute that requires input
     if (!name) {
       throw new UserInputError('Invalid category name', { name })
@@ -107,7 +113,7 @@ export default class CategoryModel {
   async getCategoryById (id) {
     // Check valid some attribute that requires input
     if (!id) {
-      throw new UserInputError('Invalid category name', { id })
+      throw new UserInputError('Invalid category id', { id })
     }
     const db = await this.getDatabase()
     const param = {
@@ -194,10 +200,10 @@ export default class CategoryModel {
     }
   }
 
-  async deleteCategory (id = '') {
+  async deleteCategory (id) {
     // Check valid some attribute that requires input
     if (!id) {
-      throw new UserInputError('Invalid category name', { id })
+      throw new UserInputError('Invalid category id', { id })
     }
     const db = await this.getDatabase()
     try {
