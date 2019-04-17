@@ -1,6 +1,7 @@
 import { UserInputError, ApolloError, ForbiddenError } from 'apollo-server'
 import uuidv4 from 'uuid/v4'
 import bcrypt from 'bcrypt'
+import moment from 'moment'
 
 import { isValidateEmail } from '../utils/Validators'
 import Database from '../db'
@@ -36,6 +37,7 @@ export default class UserModel {
     const bcryptPassword = bcrypt.hashSync(password, salt)
 
     const id = uuidv4()
+    const datetime = moment().format()
     const item1 = {
       pk: {
         S: `User_${id}`
@@ -56,7 +58,7 @@ export default class UserModel {
         S: phone.toString()
       },
       datetime: {
-        S: '2019-04-12'
+        S: datetime
       }
     }
 
@@ -83,7 +85,7 @@ export default class UserModel {
         S: role.toString()
       },
       datetime: {
-        S: '2019-04-12'
+        S: datetime
       }
     }
 
@@ -126,7 +128,11 @@ export default class UserModel {
     }
   }
 
-  async getUserByUsername (username = '') {
+  async getUserByUsername (username) {
+    // Check valid some attribute that requires input
+    if (!username) {
+      throw new UserInputError('Invalid user role', { username })
+    }
     const db = await this.getDatabase()
     const param = {
       TableName: tableName,
@@ -158,6 +164,11 @@ export default class UserModel {
   }
 
   async getUsersByRole (role = '') {
+    // Check valid some attribute that requires input
+    if (!role) {
+      throw new UserInputError('Invalid user role', { role })
+    }
+
     const db = await this.getDatabase()
     const param = {
       TableName: tableName,
@@ -227,7 +238,11 @@ export default class UserModel {
     }
   }
 
-  async getUserById (id = '') {
+  async getUserById (id) {
+    // Check valid some attribute that requires input
+    if (!id) {
+      throw new UserInputError('Invalid user id', { id })
+    }
     const db = await this.getDatabase()
     const param = {
       TableName: tableName,
@@ -257,7 +272,11 @@ export default class UserModel {
     }
   }
 
-  async deleteUser (id = '') {
+  async deleteUser (id) {
+    // Check valid some attribute that requires input
+    if (!id) {
+      throw new UserInputError('Invalid user id', { id })
+    }
     const db = await this.getDatabase()
     try {
       const user1 = await db.deleteItem({

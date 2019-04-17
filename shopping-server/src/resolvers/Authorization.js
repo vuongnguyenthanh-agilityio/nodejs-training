@@ -20,8 +20,19 @@ export const isAdminRole = combineResolvers(
 
 export const isPermissionDeleteUser = combineResolvers(
   isAuthenticated,
-  (parent, { id }, { models, currentUser: { role, id: userId } }) => {
+  (parent, { id }, { currentUser: { role, id: userId } }) => {
     if (role !== 'ADMIN' || userId !== id) {
+      throw new ForbiddenError('No permission.')
+    }
+    return skip
+  }
+)
+
+export const isPermissionModifyCategory = combineResolvers(
+  isAuthenticated,
+  async (parent, { id }, { models, currentUser: { role, id: userId } }) => {
+    const category = await models.category.getCategoryById(id)
+    if (role !== 'ADMIN' || (category && userId !== category.createdBy)) {
       throw new ForbiddenError('No permission.')
     }
     return skip
