@@ -1,7 +1,7 @@
-import AuthResolver from './Auth'
+import AuthenticationResolver from './Authentication'
 import UserResolver from './User'
 
 export default [
-  AuthResolver,
+  AuthenticationResolver,
   UserResolver
 ]

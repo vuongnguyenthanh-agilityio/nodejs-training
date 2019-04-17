@@ -152,6 +152,36 @@ export default class UserModel {
     }
   }
 
+  async getUserById (id = '') {
+    const db = await this.getDatabase()
+    const param = {
+      TableName: tableName,
+      Key: {
+        pk: {
+          S: id.toString()
+        },
+        sk: {
+          S: 'USER_DETAIL'
+        }
+      }
+    }
+    const results = db.getItem(param)
+
+    if (results && results.Item) {
+      const user = results.Item
+      const { pk, data, name, username, phone, address, photos } = user
+      return {
+        id: pk && pk.S,
+        role: data && data.S,
+        username: username && username.S,
+        name: name && name.S,
+        phone: phone && phone.S,
+        address: address && address.S,
+        photos: photos && photos.L
+      }
+    }
+  }
+
   async deleteUser (id = '') {
     const db = await this.getDatabase()
     try {
