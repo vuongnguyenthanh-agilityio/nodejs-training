@@ -10,8 +10,8 @@ const deleteCategory = async (parent, { id }, { models }) => {
   return category
 }
 
-const getCategories = async (parent, { filter }, { models }) => {
-  const categories = await models.category.getCategories(filter)
+const getCategories = async (parent, { limit, nextToken }, { models }) => {
+  const categories = await models.category.getCategories(limit, nextToken)
   return categories
 }
 

@@ -22,9 +22,9 @@ export default class UserModel {
     }
 
     // Check permission
-    if (role === 'ADMIN') {
-      throw new ForbiddenError('No permission register this user')
-    }
+    // if (role === 'ADMIN') {
+    //   throw new ForbiddenError('No permission register this user')
+    // }
 
     // Check user already exists
     const userExists = await this.getUserByUsername(username)

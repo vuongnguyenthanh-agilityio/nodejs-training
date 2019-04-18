@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   extend type Query {
-    getCategories(filter: FilterCategoryInput, limit: Int, nextToken: String): [Category!]
+    getCategories(filter: FilterCategoryInput, limit : Int = 10, nextToken: String): Categories
     getCategoryById(id: ID!): Category
   }
 
@@ -19,6 +19,12 @@ export default gql`
     description: String
     user: User
     datetime: String
+  }
+
+  type Categories {
+    count: Int
+    nextToken: String
+    categories: [Category]
   }
 
   input UpdateCategoryInput {

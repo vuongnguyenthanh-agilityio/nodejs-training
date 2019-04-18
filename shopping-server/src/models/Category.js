@@ -5,6 +5,7 @@ import Database from '../db'
 
 const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
+const globalIndexTwo = 'GSI_2'
 
 export default class CategoryModel {
   async putCategory (category) {
@@ -142,69 +143,34 @@ export default class CategoryModel {
     }
   }
 
-  async getCategories (filter = {}) {
+  async getCategories (limit, nextToken) {
     const db = await this.getDatabase()
-    const { datetime, parentId, createdBy } = filter
-    // Condition for create filter
-    // const filterValue = `
-    //   ${datetime ? '#datetime = :datetime' : ''}
-    //   ${parentId ? '#parentId = :parentId' : ''}
-    //   ${createdBy && createdBy.id ? '#createdBy.#id = :createdByUserId' : ''}
-    //   ${createdBy && createdBy.role ? '#createdBy.#role = :createdByUserRole' : ''}
-    // `
-    // const expressionAttributeValues = {
-    //   ':pk': {
-    //     S: 'CATEGORY_DETAIL'
-    //   }
-    // }
-
-    // if (datetime) {
-    //   expressionAttributeValues[':datetime'] = {
-    //     S: datetime
-    //   }
-    // }
-
-    // if (parentId) {
-    //   expressionAttributeValues[':parentId'] = {
-    //     S: parentId
-    //   }
-    // }
-
-    // if (createdBy && createdBy.id) {
-    //   expressionAttributeValues[':createdByUserId'] = {
-    //     S: createdBy.id
-    //   }
-    // }
-
-    // if (createdBy && createdBy.role) {
-    //   expressionAttributeValues[':createdByUserRole'] = {
-    //     S: createdBy.role
-    //   }
-    // }
+    // const { datetime, parentId, createdBy } = filter
+    console.log('limit: ', limit)
 
     const param = {
       TableName: tableName,
-      IndexName: globalIndexOne,
+      IndexName: globalIndexTwo,
       KeyConditionExpression: '#pk = :pk',
-      // FilterExpression: filterValue,
       ExpressionAttributeNames: {
         '#pk': 'sk'
-        // '#datetime': 'datetime',
-        // '#parentId': 'parentId',
-        // '#createdBy': 'createdBy',
-        // '#id': 'id',
-        // '#role': 'role'
       },
       ExpressionAttributeValues: {
         ':pk': {
           S: 'CATEGORY_DETAIL'
         }
-      }
+      },
+      ScanIndexForward: false,
+      Limit: limit
+    }
+    if (nextToken) {
+      param.ExclusiveStartKey = JSON.parse(Buffer.from(nextToken, 'base64').toString('ascii'))
     }
     const results = await db.query(param)
+    console.log('Results: ', results)
 
     if (results && results.Items && results.Items.length > 0) {
-      return results.Items.map(category => {
+      const categories = results.Items.map(category => {
         const { pk, data, parentId, description, createdBy } = category
 
         return {
@@ -215,6 +181,12 @@ export default class CategoryModel {
           createdBy: createdBy && createdBy.S
         }
       })
+      const nextToken = Buffer.from(JSON.stringify(results.LastEvaluatedKey)).toString('base64')
+      return {
+        categories,
+        nextToken,
+        count: results.Count
+      }
     }
   }
 

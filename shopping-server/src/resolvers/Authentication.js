@@ -51,7 +51,7 @@ const signIn = async (parent, { username, password }, { models, secret }) => {
   if (!isValid) {
     throw new AuthenticationError('Invalid password.')
   }
-  const token = createToken(user, secret, '30m')
+  const token = createToken(user, secret, '60m')
   return {
     token,
     user
