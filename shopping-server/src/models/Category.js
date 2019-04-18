@@ -2,6 +2,7 @@ import { UserInputError, ApolloError } from 'apollo-server'
 import uuidv4 from 'uuid/v4'
 
 import Database from '../db'
+import { encodeBase64, decodeBase64 } from '../utils/Utilties'
 
 const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
@@ -33,7 +34,7 @@ export default class CategoryModel {
         S: parentId ? parentId.toString() : '0'
       },
       createdBy: {
-        S: userId
+        S: userId.toString()
       },
       datetime: {
         S: datetime.toString()
@@ -45,15 +46,10 @@ export default class CategoryModel {
         S: description.toString()
       }
     }
+    const pk = id || `Category_${uuid}`
 
-    if (id) {
-      item.pk = {
-        S: id
-      }
-    } else {
-      item.pk = {
-        S: `Category_${uuid}`
-      }
+    item.pk = {
+      S: pk.toString()
     }
 
     const db = await this.getDatabase()
@@ -66,7 +62,7 @@ export default class CategoryModel {
       throw new Error(error)
     }
     return {
-      id: `Category_${uuid}`,
+      id: pk,
       name,
       parentId,
       description,
@@ -164,27 +160,27 @@ export default class CategoryModel {
       Limit: limit
     }
     if (nextToken) {
-      param.ExclusiveStartKey = JSON.parse(Buffer.from(nextToken, 'base64').toString('ascii'))
+      param.ExclusiveStartKey = JSON.parse(encodeBase64(nextToken))
     }
     const results = await db.query(param)
-    console.log('Results: ', results)
 
     if (results && results.Items && results.Items.length > 0) {
       const categories = results.Items.map(category => {
-        const { pk, data, parentId, description, createdBy } = category
+        const { pk, data, parentId, description, createdBy, datetime } = category
 
         return {
           id: pk.S,
           name: data && data.S,
           parentId: parentId && parentId.S,
           description: description && description.S,
-          createdBy: createdBy && createdBy.S
+          createdBy: createdBy && createdBy.S,
+          lastUpdate: datetime && datetime.S
         }
       })
-      const nextToken = Buffer.from(JSON.stringify(results.LastEvaluatedKey)).toString('base64')
+
       return {
         categories,
-        nextToken,
+        nextToken: decodeBase64(JSON.stringify(results.LastEvaluatedKey)),
         count: results.Count
       }
     }

@@ -18,7 +18,7 @@ export default gql`
     parent: Category
     description: String
     user: User
-    datetime: String
+    lastUpdate: String
   }
 
   type Categories {
@@ -29,7 +29,7 @@ export default gql`
 
   input UpdateCategoryInput {
     id: ID!
-    name: String
+    name: String!
     parentId: String
     description: String
   }

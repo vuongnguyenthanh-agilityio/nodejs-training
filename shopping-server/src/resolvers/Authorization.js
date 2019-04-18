@@ -2,7 +2,7 @@ import { ForbiddenError } from 'apollo-server'
 import { skip, combineResolvers } from 'graphql-resolvers'
 
 export const isAuthenticated = (parent, args, { currentUser }) => {
-  if (!currentUser || currentUser.ait === 'Invalid Date') {
+  if (!currentUser) {
     throw new ForbiddenError('Not authenticated as user.')
   }
   return skip
@@ -34,6 +34,29 @@ export const isPermissionModifyCategory = combineResolvers(
     const categoryId = (input && input.id) ? input.id : id
     const category = await models.category.getCategoryById(categoryId)
     if (role !== 'ADMIN' && (category && userId !== category.createdBy)) {
+      throw new ForbiddenError('No permission.')
+    }
+    return skip
+  }
+)
+
+export const isPermissionDeleteProduct = combineResolvers(
+  isAuthenticated,
+  async (parent, { id, input }, { models, currentUser: { role, id: userId } }) => {
+    // const categoryId = (input && input.id) ? input.id : id
+    const product = await models.product.getProductById(id)
+    if (role !== 'ADMIN' && (product && userId !== product.createdBy)) {
+      throw new ForbiddenError('No permission.')
+    }
+    return skip
+  }
+)
+
+export const isPermissionUpdateProduct = combineResolvers(
+  isAuthenticated,
+  async (parent, { id, input }, { models, currentUser: { role, id: userId } }) => {
+    const product = await models.product.getProductById(input.id)
+    if (product && userId !== product.createdBy) {
       throw new ForbiddenError('No permission.')
     }
     return skip
