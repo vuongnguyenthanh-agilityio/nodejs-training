@@ -1,30 +1,26 @@
-import { UserInputError, ApolloError, ForbiddenError } from 'apollo-server'
+import { UserInputError, ApolloError } from 'apollo-server'
 import uuidv4 from 'uuid/v4'
-import bcrypt from 'bcrypt'
 import moment from 'moment'
 
 import { isValidateEmail } from '../utils/Validators'
 import Database from '../db'
+import { encodePassword, decodeBase64 } from '../utils/Utilties'
 
 const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
+const globalIndexTwo = 'GSI_2'
 
 export default class UserModel {
   async createUser (user) {
     const { username, name, phone, address, password, role } = user
     // Check valid some attribute that requires input
-    if (!username || !password || !role || !name || !phone) {
+    if (!username || !password) {
       throw new UserInputError('Form input invalid.', { user })
     }
     // Check valide username
     if (!isValidateEmail(username)) {
       throw new UserInputError('Username invalid.', { username: username })
     }
-
-    // Check permission
-    // if (role === 'ADMIN') {
-    //   throw new ForbiddenError('No permission register this user')
-    // }
 
     // Check user already exists
     const userExists = await this.getUserByUsername(username)
@@ -33,12 +29,11 @@ export default class UserModel {
     }
 
     // encode password
-    const salt = bcrypt.genSaltSync()
-    const bcryptPassword = bcrypt.hashSync(password, salt)
+    const bcryptPassword = encodePassword(password)
 
     const id = uuidv4()
     const datetime = moment().format()
-    const item1 = {
+    const item = {
       pk: {
         S: `User_${id}`
       },
@@ -46,16 +41,13 @@ export default class UserModel {
         S: 'USER_DETAIL'
       },
       data: {
-        S: role.toString()
-      },
-      username: {
         S: username.toString()
       },
-      name: {
-        S: name.toString()
+      role: {
+        S: role ? role.toString() : 'CUSTOMER'
       },
-      phone: {
-        S: phone.toString()
+      password: {
+        S: bcryptPassword.toString()
       },
       datetime: {
         S: datetime
@@ -63,29 +55,18 @@ export default class UserModel {
     }
 
     if (address) {
-      item1.address = {
+      item.address = {
         S: address.toString()
       }
     }
-
-    const item2 = {
-      pk: {
-        S: `User_${id}`
-      },
-      sk: {
-        S: 'USER_LOGIN'
-      },
-      data: {
-        S: username.toString()
-      },
-      password: {
-        S: bcryptPassword.toString()
-      },
-      role: {
-        S: role.toString()
-      },
-      datetime: {
-        S: datetime
+    if (phone) {
+      item.phone = {
+        S: phone.toString()
+      }
+    }
+    if (name) {
+      item.name = {
+        S: name.toString()
       }
     }
 
@@ -93,30 +74,8 @@ export default class UserModel {
     try {
       await db.putItem({
         TableName: tableName,
-        Item: item1
+        Item: item
       })
-      await db.putItem({
-        TableName: tableName,
-        Item: item2
-      })
-      // FIXME: Will update
-
-      // await db.batchWriteItem({
-      //   RequestItems: {
-      //     tableName: [
-      //       {
-      //         PutRequest: {
-      //           Item: item1
-      //         }
-      //       },
-      //       {
-      //         PutRequest: {
-      //           Item: item2
-      //         }
-      //       }
-      //     ]
-      //   }
-      // })
     } catch (error) {
       console.log('Create user error: ', error)
       throw new Error(error)
@@ -144,7 +103,7 @@ export default class UserModel {
       },
       ExpressionAttributeValues: {
         ':pk': {
-          S: 'USER_LOGIN'
+          S: 'USER_DETAIL'
         },
         ':sk': {
           S: username.toString()
@@ -163,53 +122,12 @@ export default class UserModel {
     }
   }
 
-  async getUsersByRole (role = '') {
-    // Check valid some attribute that requires input
-    if (!role) {
-      throw new UserInputError('Invalid user role', { role })
-    }
-
+  async getUsers ({ filter = {}, limit, nextToken }) {
+    const { role } = filter
     const db = await this.getDatabase()
     const param = {
       TableName: tableName,
-      IndexName: globalIndexOne,
-      KeyConditionExpression: '#pk = :pk AND #sk = :sk',
-      ExpressionAttributeNames: {
-        '#pk': 'sk',
-        '#sk': 'data'
-      },
-      ExpressionAttributeValues: {
-        ':pk': {
-          S: 'USER_DETAIL'
-        },
-        ':sk': {
-          S: role.toString()
-        }
-      }
-    }
-    const results = await db.query(param)
-    if (results && results.Items && results.Items.length > 0) {
-      const users = results.Items
-      return users.map(user => {
-        const { pk, data, name, username, phone, address, photos } = user
-        return {
-          id: pk.S,
-          role: data && data.S,
-          username: username && username.S,
-          name: name && name.S,
-          phone: phone && phone.S,
-          address: address && address.S,
-          photos: photos && photos.L
-        }
-      })
-    }
-  }
-
-  async getUsers () {
-    const db = await this.getDatabase()
-    const param = {
-      TableName: tableName,
-      IndexName: globalIndexOne,
+      IndexName: globalIndexTwo,
       KeyConditionExpression: '#pk = :pk',
       ExpressionAttributeNames: {
         '#pk': 'sk'
@@ -218,23 +136,48 @@ export default class UserModel {
         ':pk': {
           S: 'USER_DETAIL'
         }
-      }
+      },
+      ScanIndexForward: false,
+      Limit: limit
     }
+    let filterExpression = ''
+
+    // Add filter by categoryId if have categoryId
+    if (role) {
+      param.ExpressionAttributeValues[':role'] = {
+        S: role
+      }
+      param.ExpressionAttributeNames['#role'] = 'role'
+      filterExpression = '#role = :role'
+    }
+
+    // Add FilterExpression to param If exists any filter
+    if (filterExpression) {
+      param.FilterExpression = filterExpression
+    }
+
+    // Qyery to database by param
     const results = await db.query(param)
     if (results && results.Items && results.Items.length > 0) {
-      const users = results.Items
-      return users.map(user => {
-        const { pk, data, name, username, phone, address, photos } = user
+      const users = results.Items.map(user => {
+        const { pk, data, name, role, phone, address, photos, datetime } = user
         return {
           id: pk.S,
-          role: data && data.S,
-          username: username && username.S,
+          username: data && data.S,
+          role: role && role.S,
           name: name && name.S,
           phone: phone && phone.S,
           address: address && address.S,
+          createdAt: datetime && datetime.S,
           photos: photos && photos.L
         }
       })
+
+      return {
+        users,
+        count: results.Count,
+        nextToken: decodeBase64(JSON.stringify(results.LastEvaluatedKey))
+      }
     }
   }
 
@@ -259,14 +202,15 @@ export default class UserModel {
 
     if (results && results.Item) {
       const user = results.Item
-      const { pk, data, name, username, phone, address, photos } = user
+      const { pk, data, name, role, phone, address, photos, datetime } = user
       return {
         id: pk.S,
-        role: data && data.S,
-        username: username && username.S,
+        username: data && data.S,
+        role: role && role.S,
         name: name && name.S,
         phone: phone && phone.S,
         address: address && address.S,
+        createdAt: datetime && datetime.S,
         photos: photos && photos.L
       }
     }
@@ -279,7 +223,7 @@ export default class UserModel {
     }
     const db = await this.getDatabase()
     try {
-      const user1 = await db.deleteItem({
+      const user = await db.deleteItem({
         TableName: tableName,
         Key: {
           pk: {
@@ -292,21 +236,7 @@ export default class UserModel {
         ReturnValues: 'ALL_OLD'
       })
 
-      const user2 = await db.deleteItem({
-        TableName: tableName,
-        Key: {
-          pk: {
-            S: id.toString()
-          },
-          sk: {
-            S: 'USER_LOGIN'
-          }
-        },
-        ReturnValues: 'ALL_OLD'
-      })
-
-      const { Attributes: { name, phone, address, photos } } = user1
-      const { Attributes: { pk, data, role } } = user2
+      const { Attributes: { pk, data, role, name, phone, address, photos } } = user
 
       return {
         id: pk && pk.S,

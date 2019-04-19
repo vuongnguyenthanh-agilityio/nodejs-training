@@ -21,14 +21,12 @@ const getProductById = async (parent, { id }, { models }) => {
 }
 
 const createProduct = async (parent, { input }, { models, currentUser }) => {
-  console.log('input: ', input)
   const productInput = {
     ...input,
     userId: currentUser.id,
     datetime: moment().format()
   }
   const product = await models.product.putProduct(productInput)
-  console.log('Product: ', product)
   return product
 }
 
@@ -86,8 +84,8 @@ export default {
     )
   },
   Product: {
-    userCreated: getUserById,
-    userConfirm: getConfirmUserById,
+    createdBy: getUserById,
+    confirmedBy: getConfirmUserById,
     category: getCategoryById
   }
 }

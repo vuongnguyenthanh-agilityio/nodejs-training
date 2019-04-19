@@ -2,7 +2,7 @@
 import { combineResolvers } from 'graphql-resolvers'
 import moment from 'moment'
 
-import { isPermissionModifyCategory, isAdminRole, isAuthenticated } from './Authorization'
+import { isPermissionModifyCategory, isAuthenticated } from './Authorization'
 import { getUserById, getCategoryById as getCategoryId } from './Common'
 
 const deleteCategory = async (parent, { id }, { models }) => {
@@ -11,7 +11,7 @@ const deleteCategory = async (parent, { id }, { models }) => {
 }
 
 const getCategories = async (parent, { limit, nextToken }, { models }) => {
-  const categories = await models.category.getCategories(limit, nextToken)
+  const categories = await models.category.getCategories({ limit, nextToken })
   return categories
 }
 

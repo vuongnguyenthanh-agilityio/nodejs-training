@@ -95,7 +95,7 @@ export default class CategoryModel {
       amount: amount || 0,
       discount: discount || 0,
       createdBy: userId,
-      lastUpdate: datetime
+      createdAt: datetime
     }
   }
 
@@ -128,7 +128,7 @@ export default class CategoryModel {
         price: price && price.N,
         amount: amount && amount.N,
         discount: discount && discount.N,
-        lastUpdate: datetime && datetime.S,
+        createdAt: datetime && datetime.S,
         status: status && status.S,
         photos: photos && photos.L,
         description: description && description.S,
@@ -161,14 +161,14 @@ export default class CategoryModel {
       },
       ExpressionAttributeNames: {
         '#status': 'status',
-        '#datetime': 'datetime'
+        '#confirmedAt': 'confirmedAt'
       },
       ExpressionAttributeValues: {
         ':status': { S: status.toString() },
         ':datetime': { S: datetime.toString() },
         ':createdBy': { S: userId.toString() }
       },
-      UpdateExpression: 'SET #status = :status, #datetime = :datetime, confirmBy = :createdBy',
+      UpdateExpression: 'SET #status = :status, #confirmedAt = :datetime, confirmBy = :createdBy',
       ReturnValues: 'ALL_NEW'
     }
     const param1 = {
@@ -183,7 +183,9 @@ export default class CategoryModel {
     const results = await db.updateItem(param)
     await db.updateItem(param1)
 
-    const { Attributes: { pk, data, name, price, description, amount, photos, createdBy, discount, datetime: resDatetime, status: resStatus, confirmBy } } = results
+    const { Attributes:
+      { pk, data, name, price, description, amount, photos, createdBy, discount, datetime: resDatetime, status: resStatus, confirmBy, confirmedAt }
+    } = results
     return {
       id: pk.S,
       categoryId: data && data.S,
@@ -191,12 +193,13 @@ export default class CategoryModel {
       price: price && price.N,
       amount: amount && amount.N,
       discount: discount && discount.N,
-      lastUpdate: resDatetime && resDatetime.S,
+      createdAt: resDatetime && resDatetime.S,
       status: resStatus && resStatus.S,
       photos: photos && photos.L,
       description: description && description.S,
       createdBy: createdBy && createdBy.S,
-      confirmBy: confirmBy && confirmBy.S
+      confirmBy: confirmBy && confirmBy.S,
+      confirmedAt: confirmedAt && confirmedAt.S
     }
   }
 
@@ -228,7 +231,8 @@ export default class CategoryModel {
       param.ExpressionAttributeValues[':categoryId'] = {
         S: categoryId
       }
-      filterExpression = 'categoryId = :categoryId'
+      param.ExpressionAttributeNames['#data'] = 'data'
+      filterExpression = '#data = :categoryId'
     }
 
     // Add filter by status if have categoryId
@@ -250,11 +254,10 @@ export default class CategoryModel {
       param.ExclusiveStartKey = JSON.parse(encodeBase64(nextToken))
     }
     const results = await db.query(param)
-    console.log('results: ', results)
 
     if (results && results.Items && results.Items.length > 0) {
       const products = results.Items.map(product => {
-        const { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status } = product
+        const { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status, confirmedAt } = product
         return {
           id: pk.S,
           categoryId: data && data.S,
@@ -266,7 +269,8 @@ export default class CategoryModel {
           status: status && status.S,
           photos: photos && photos.L,
           description: description && description.S,
-          createdBy: createdBy && createdBy.S
+          createdBy: createdBy && createdBy.S,
+          confirmedAt: confirmedAt && confirmedAt.S
         }
       })
 
@@ -310,7 +314,7 @@ export default class CategoryModel {
         }
       })
 
-      const { Attributes: { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status } } = product
+      const { Attributes: { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status, confirmedAt } } = product
 
       return {
         id: pk.S,
@@ -323,7 +327,8 @@ export default class CategoryModel {
         status: status && status.S,
         photos: photos && photos.L,
         description: description && description.S,
-        createdBy: createdBy && createdBy.S
+        createdBy: createdBy && createdBy.S,
+        confirmedAt: confirmedAt && confirmedAt.S
       }
     } catch (error) {
       throw new Error(error)

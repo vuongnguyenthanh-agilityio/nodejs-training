@@ -1,21 +1,8 @@
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
 import { AuthenticationError, UserInputError } from 'apollo-server'
 
-/**
-* Create token with userId, username and role
-* @param {object} user
-* @param {string} secret
-* @param {string} expiresIn
-* @return {string} json web token
-*/
-const createToken = async (user, secret, expiresIn) => {
-  const { id, role, username } = user
-  const token = await jwt.sign({ id, role, username }, secret, {
-    expiresIn
-  })
-  return token
-}
+import { isBcryptCompare, createToken } from '../utils/Utilties'
+
+const ADMIN_ROLE = 'ADMIN1'
 
 /**
 * register a user to database
@@ -25,8 +12,11 @@ const createToken = async (user, secret, expiresIn) => {
 * @return {object}
 */
 const registerUser = async (parent, { input }, { models, secret }) => {
+  if (input && input.role === ADMIN_ROLE) {
+    throw new UserInputError('Invalid user role. No permission register user with role ADMID', { role: input.role })
+  }
   const user = await models.user.createUser(input)
-  const token = createToken(user, secret, '30m')
+  const token = createToken(user, secret, '60m')
   return {
     token,
     user
@@ -47,8 +37,7 @@ const signIn = async (parent, { username, password }, { models, secret }) => {
   }
 
   // Check validate passowrd
-  const isValid = await bcrypt.compare(password, user.password)
-  if (!isValid) {
+  if (!isBcryptCompare(password, user.password)) {
     throw new AuthenticationError('Invalid password.')
   }
   const token = createToken(user, secret, '60m')

@@ -66,7 +66,8 @@ export default class CategoryModel {
       name,
       parentId,
       description,
-      createdBy: userId
+      createdBy: userId,
+      createdAt: datetime
     }
   }
 
@@ -96,13 +97,14 @@ export default class CategoryModel {
     const results = await db.query(param)
     if (results && results.Items && results.Items.length > 0) {
       const category = results.Items[0]
-      const { pk, data, parentId, description, createdBy } = category
+      const { pk, data, parentId, description, createdBy, datetime } = category
       return {
         id: pk.S,
         name: data && data.S,
         parentId: parentId && parentId.S,
         description: description && description.S,
-        createdBy: createdBy && createdBy.S
+        createdBy: createdBy && createdBy.S,
+        createdAt: datetime
       }
     }
   }
@@ -128,21 +130,20 @@ export default class CategoryModel {
 
     if (results && results.Item) {
       const category = results.Item
-      const { pk, data, parentId, description, createdBy } = category
+      const { pk, data, parentId, description, createdBy, datetime } = category
       return {
         id: pk.S,
         name: data && data.S,
         parentId: parentId && parentId.S,
         description: description && description.S,
-        createdBy: createdBy && createdBy.S
+        createdBy: createdBy && createdBy.S,
+        createdAt: datetime && datetime.S
       }
     }
   }
 
-  async getCategories (limit, nextToken) {
+  async getCategories ({ filter, limit, nextToken }) {
     const db = await this.getDatabase()
-    // const { datetime, parentId, createdBy } = filter
-    console.log('limit: ', limit)
 
     const param = {
       TableName: tableName,
@@ -174,7 +175,7 @@ export default class CategoryModel {
           parentId: parentId && parentId.S,
           description: description && description.S,
           createdBy: createdBy && createdBy.S,
-          lastUpdate: datetime && datetime.S
+          createdAt: datetime && datetime.S
         }
       })
 
@@ -206,14 +207,15 @@ export default class CategoryModel {
         ReturnValues: 'ALL_OLD'
       })
 
-      const { Attributes: { pk, data, parentId, description, createdBy } } = category
+      const { Attributes: { pk, data, parentId, description, createdBy, datetime } } = category
 
       return {
         id: pk.S,
         name: data && data.S,
         parentId: parentId && parentId.S,
         description: description && description.S,
-        createdBy: createdBy && createdBy.S
+        createdBy: createdBy && createdBy.S,
+        createdAt: datetime && datetime.S
       }
     } catch (error) {
       throw new Error(error)

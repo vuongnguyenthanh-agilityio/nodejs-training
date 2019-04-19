@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   extend type Query {
-    getProducts(filter: FilterProductInput, limit : Int = 10, nextToken: String, userId: String): Products
+    getProducts(filter: FilterProductInput, limit : Int, nextToken: String, userId: String): Products
     getProduct(id: ID!): Product!
   }
 
@@ -20,12 +20,13 @@ export default gql`
     price: Int
     amount: Int
     discount: Int
-    lastUpdate: String
     photos: [String!]
     description: String
-    userCreated: User
     status: Status
-    userConfirm: User
+    createdBy: User
+    confirmedBy: User
+    createdAt: String
+    confirmedAt: String
   }
 
   enum Status {
