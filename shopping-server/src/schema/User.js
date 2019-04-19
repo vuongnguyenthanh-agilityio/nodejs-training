@@ -2,15 +2,14 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   extend type Query {
-    me: User
-    getUsers: [User!]
-    getUsersbyRole(role: String!): [User!]
+    getUsers(filter: FilterUserInput, limit: Int, nextToken: String): Users
     getUserById(id: ID!): User
   }
 
   extend type Mutation {
-    signUp(input: CreateUserInput!): Token!
+    signUp(input: SignUpUserInput!): Token!
     signIn(username: String!, password: String!): Token!
+    createUser(input: CreateUserInput!): User!
     deleteUser(id: ID!): User!
   }
 
@@ -19,22 +18,44 @@ export default gql`
     token: String!
   }
 
+  enum Role {
+    ADMIN
+    CUSTOMER
+  }
+
+  type Users {
+    count: Int
+    nextToken: String
+    users: [User!]
+  }
+
   type User {
     id: ID!
     username: String!
-    role: String!
+    role: Role!
     name: String
     phone: String
     address: String
+    createdAt: String
     photos: [String!]
+  }
+
+  input FilterUserInput {
+    role: Role
+  }
+
+  input SignUpUserInput {
+    username: String!
+    name: String!
+    phone: String!
+    password: String!
+    role: Role
+    address: String
   }
 
   input CreateUserInput {
     username: String!
-    name: String!
-    phone: String!
-    role: String!
     password: String!
-    address: String
+    role: Role!
   }
 `

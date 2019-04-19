@@ -31,11 +31,11 @@ export default {
     {
       IndexName: 'GSI_2',
       KeySchema: [
-        { AttributeName: 'datetime', KeyType: 'HASH' }, // Partition key
-        { AttributeName: 'sk', KeyType: 'RANGE' } // Sort key
+        { AttributeName: 'sk', KeyType: 'HASH' }, // Partition key
+        { AttributeName: 'datetime', KeyType: 'RANGE' } // Sort key
       ],
       Projection: {
-        ProjectionType: 'KEYS_ONLY'
+        ProjectionType: 'ALL'
       },
       ProvisionedThroughput: {
         ReadCapacityUnits: 1,
