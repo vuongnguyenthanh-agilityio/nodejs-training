@@ -37,6 +37,10 @@ describe('User: GetUser', () => {
     }
   })
 
+  describe('User: GetUser : Have Token', () => {
+
+  })
+
   it('Get user by id successfuly', async () => {
     await supertest(app)
       .post('/graphql')
