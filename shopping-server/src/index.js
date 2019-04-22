@@ -45,6 +45,8 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app, path: '/graphql' })
 
-app.listen({ port: 9000 }, () => {
+const serverApp = app.listen({ port: 9000 }, () => {
   console.log('Apollo Server on http://localhost:9000/graphql')
 })
+
+export default serverApp

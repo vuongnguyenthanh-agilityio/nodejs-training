@@ -35,9 +35,9 @@ export const encodePassword = (password = '') => {
 * @param {string} str
 * @return {bolean}  true: if they are same
 */
-export const isBcryptCompare = async (bcryptStr, str) => {
-  const isSame = await bcrypt.compare(str, bcryptStr)
-  return isSame
+export const isBcryptCompare = async (str, bcryptStr) => {
+  const match = await bcrypt.compare(str, bcryptStr)
+  return match
 }
 
 /**

@@ -3,7 +3,7 @@ import { skip, combineResolvers } from 'graphql-resolvers'
 
 const ADMIN_ROLE = 'ADMIN'
 
-export const isAuthenticated = (parent, args, { currentUser }) => {
+export const isAuthenticated = async (parent, args, { currentUser }) => {
   if (!currentUser) {
     throw new ForbiddenError('Not authenticated as user.')
   }

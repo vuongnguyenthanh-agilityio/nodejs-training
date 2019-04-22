@@ -90,7 +90,7 @@ export default class UserModel {
   async getUserByUsername (username) {
     // Check valid some attribute that requires input
     if (!username) {
-      throw new UserInputError('Invalid user role', { username })
+      throw new UserInputError('Invalid username.', { username })
     }
     const db = await this.getDatabase()
     const param = {
@@ -110,15 +110,19 @@ export default class UserModel {
         }
       }
     }
-    const results = await db.query(param)
-    if (results && results.Items && results.Items.length > 0) {
-      const user = results.Items[0]
-      return {
-        id: user.pk.S,
-        username: user.data.S,
-        role: user.role.S,
-        password: user.password.S
+    try {
+      const results = await db.query(param)
+      if (results && results.Items && results.Items.length > 0) {
+        const user = results.Items[0]
+        return {
+          id: user.pk.S,
+          username: user.data.S,
+          role: user.role.S,
+          password: user.password.S
+        }
       }
+    } catch (error) {
+      throw new Error(error)
     }
   }
 
@@ -155,29 +159,33 @@ export default class UserModel {
     if (filterExpression) {
       param.FilterExpression = filterExpression
     }
+    try {
+      // Qyery to database by param
+      const results = await db.query(param)
+      if (results && results.Items && results.Items.length > 0) {
+        const users = results.Items.map(user => {
+          const { pk, data, name, role, phone, address, photos, datetime } = user
+          return {
+            id: pk.S,
+            username: data && data.S,
+            role: role && role.S,
+            name: name && name.S,
+            phone: phone && phone.S,
+            address: address && address.S,
+            createdAt: datetime && datetime.S,
+            photos: photos && photos.L
+          }
+        })
 
-    // Qyery to database by param
-    const results = await db.query(param)
-    if (results && results.Items && results.Items.length > 0) {
-      const users = results.Items.map(user => {
-        const { pk, data, name, role, phone, address, photos, datetime } = user
         return {
-          id: pk.S,
-          username: data && data.S,
-          role: role && role.S,
-          name: name && name.S,
-          phone: phone && phone.S,
-          address: address && address.S,
-          createdAt: datetime && datetime.S,
-          photos: photos && photos.L
+          users,
+          count: results.Count,
+          nextToken: decodeBase64(JSON.stringify(results.LastEvaluatedKey))
         }
-      })
-
-      return {
-        users,
-        count: results.Count,
-        nextToken: decodeBase64(JSON.stringify(results.LastEvaluatedKey))
       }
+    } catch (error) {
+      console.log('Error: ', error)
+      throw new Error(error)
     }
   }
 
@@ -203,6 +211,7 @@ export default class UserModel {
     if (results && results.Item) {
       const user = results.Item
       const { pk, data, name, role, phone, address, photos, datetime } = user
+
       return {
         id: pk.S,
         username: data && data.S,

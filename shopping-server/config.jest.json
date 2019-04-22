@@ -1,0 +1,10 @@
+{
+  "setupTestFrameworkScriptFile": "<rootDir>src/__test__/index.js",
+  "collectCoverageFrom": [
+    "src/**/*.{js}"
+  ],
+  "testMatch": [
+    "<rootDir>/src/**/__tests__/**/*.{js}",
+    "<rootDir>/src/**/?(*.)(spec|test).{js}"
+  ]
+}

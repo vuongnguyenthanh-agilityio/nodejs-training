@@ -1,8 +1,9 @@
 
 import uuidv4 from 'uuid/v4'
-import bcrypt from 'bcrypt'
+import moment from 'moment'
 
 import Database from '../../db'
+import { encodePassword } from '../../utils/Utilties'
 
 const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
@@ -11,17 +12,18 @@ export default class UserModel {
   async createUser (user) {
     const { username, name, phone, address, password, role } = user
 
+    // Check user already exists
     const userExists = await this.getUserByUsername(username)
     if (userExists) {
-      throw new Error('User already exists ', 'ALREADY_EXISTS', { username })
+      throw new Error('User already exists.', 'ALREADY_EXISTS', { username })
     }
 
     // encode password
-    const salt = bcrypt.genSaltSync()
-    const bcryptPassword = bcrypt.hashSync(password, salt)
+    const bcryptPassword = encodePassword(password)
 
     const id = uuidv4()
-    const item1 = {
+    const datetime = moment().format()
+    const item = {
       pk: {
         S: `User_${id}`
       },
@@ -29,49 +31,32 @@ export default class UserModel {
         S: 'USER_DETAIL'
       },
       data: {
-        S: role.toString()
-      },
-      username: {
         S: username.toString()
-      },
-      name: {
-        S: name.toString()
-      },
-      phone: {
-        S: phone.toString()
       },
       role: {
-        S: role.toString()
-      },
-      datetime: {
-        S: '2019-04-12'
-      }
-    }
-
-    if (address) {
-      item1.address = {
-        S: address && address.toString()
-      }
-    }
-
-    const item2 = {
-      pk: {
-        S: `User_${id}`
-      },
-      sk: {
-        S: 'USER_LOGIN'
-      },
-      data: {
-        S: username.toString()
+        S: role ? role.toString() : 'CUSTOMER'
       },
       password: {
         S: bcryptPassword.toString()
       },
-      role: {
-        S: role.toString()
-      },
       datetime: {
-        S: '2019-04-12'
+        S: datetime
+      }
+    }
+
+    if (address) {
+      item.address = {
+        S: address.toString()
+      }
+    }
+    if (phone) {
+      item.phone = {
+        S: phone.toString()
+      }
+    }
+    if (name) {
+      item.name = {
+        S: name.toString()
       }
     }
 
@@ -79,11 +64,7 @@ export default class UserModel {
     try {
       await db.putItem({
         TableName: tableName,
-        Item: item1
-      })
-      await db.putItem({
-        TableName: tableName,
-        Item: item2
+        Item: item
       })
     } catch (error) {
       console.log('Create user error: ', error)
@@ -96,7 +77,8 @@ export default class UserModel {
     }
   }
 
-  async getUserByUsername (username = '') {
+  async getUserByUsername (username) {
+    // Check valid some attribute that requires input
     const db = await this.getDatabase()
     const param = {
       TableName: tableName,
@@ -108,7 +90,7 @@ export default class UserModel {
       },
       ExpressionAttributeValues: {
         ':pk': {
-          S: 'USER_LOGIN'
+          S: 'USER_DETAIL'
         },
         ':sk': {
           S: username.toString()
@@ -127,10 +109,11 @@ export default class UserModel {
     }
   }
 
-  async deleteUser (id = '') {
+  async deleteUser (id) {
+    // Check valid some attribute that requires input
     const db = await this.getDatabase()
     try {
-      await db.deleteItem({
+      const user = await db.deleteItem({
         TableName: tableName,
         Key: {
           pk: {
@@ -139,20 +122,21 @@ export default class UserModel {
           sk: {
             S: 'USER_DETAIL'
           }
-        }
+        },
+        ReturnValues: 'ALL_OLD'
       })
 
-      await db.deleteItem({
-        TableName: tableName,
-        Key: {
-          pk: {
-            S: id.toString()
-          },
-          sk: {
-            S: 'USER_LOGIN'
-          }
-        }
-      })
+      const { Attributes: { pk, data, role, name, phone, address, photos } } = user
+
+      return {
+        id: pk && pk.S,
+        username: data && data.S,
+        role: role && role.S,
+        name: name && name.S,
+        phone: phone && phone.S,
+        address: address && address.S,
+        photos: photos && photos.L
+      }
     } catch (error) {
       throw new Error(error)
     }

@@ -36,8 +36,9 @@ const signIn = async (parent, { username, password }, { models, secret }) => {
     throw new UserInputError('No user found with this login credentials.')
   }
 
+  const isMatchPassword = await isBcryptCompare(password, user.password)
   // Check validate passowrd
-  if (!isBcryptCompare(password, user.password)) {
+  if (!isMatchPassword) {
     throw new AuthenticationError('Invalid password.')
   }
   const token = createToken(user, secret, '60m')
