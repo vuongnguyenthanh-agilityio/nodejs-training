@@ -34,7 +34,6 @@ const server = new ApolloServer({
 
   context: async ({ req }) => {
     const currentUser = await getCurrentUser(req)
-    console.log('Current user: ', currentUser)
     return {
       currentUser,
       models,

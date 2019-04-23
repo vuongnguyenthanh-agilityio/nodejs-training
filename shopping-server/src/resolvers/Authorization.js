@@ -3,9 +3,14 @@ import { skip, combineResolvers } from 'graphql-resolvers'
 
 const ADMIN_ROLE = 'ADMIN'
 
-export const isAuthenticated = async (parent, args, { currentUser }) => {
+export const isAuthenticated = async (parent, args, { currentUser, models }) => {
   if (!currentUser) {
     throw new ForbiddenError('Not authenticated as user.')
+  }
+
+  const user = await models.user.getUserByUsername(currentUser.username)
+  if (!user) {
+    throw new ForbiddenError('No user found.')
   }
   return skip
 }

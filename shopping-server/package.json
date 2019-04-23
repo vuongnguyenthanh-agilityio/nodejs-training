@@ -8,7 +8,7 @@
     "test-server": "NODE_ENV=test nodemon --exec babel-node src/index.js",
     "test": "NODE_ENV=test jest --watchAll --verbose --runInBand --coverage",
     "start-dynamodb": "./scripts/dynamodb.sh",
-    "start-gui-dynamodb": "./dynamo-local/DynamoDbGUI-linux-x86_64-2.1.1.AppImage",
+    "start-dynamodb-admin": " babel-node ./scripts/DynamodbAdmin.js",
     "create-table": " babel-node ./scripts/CreateShoppingTable.js",
     "delete-table": " babel-node ./scripts/DeleteShoppingTable.js"
   },
@@ -35,6 +35,7 @@
     "@babel/preset-env": "^7.4.2",
     "axios": "^0.18.0",
     "babel-jest": "^24.7.1",
+    "dynamodb-admin": "^3.1.3",
     "eslint": "^5.15.3",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.16.0",

@@ -144,6 +144,7 @@ export default class UserModel {
       ScanIndexForward: false,
       Limit: limit
     }
+
     let filterExpression = ''
 
     // Add filter by categoryId if have categoryId
@@ -192,7 +193,7 @@ export default class UserModel {
   async getUserById (id) {
     // Check valid some attribute that requires input
     if (!id) {
-      throw new UserInputError('Invalid user id', { id })
+      throw new UserInputError('Invalid user id.', { id })
     }
     const db = await this.getDatabase()
     const param = {

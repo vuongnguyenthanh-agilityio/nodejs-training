@@ -15,7 +15,8 @@ export default class UserModel {
     // Check user already exists
     const userExists = await this.getUserByUsername(username)
     if (userExists) {
-      throw new Error('User already exists.', 'ALREADY_EXISTS', { username })
+      // throw new Error('User already exists.', 'ALREADY_EXISTS', { username })
+      return userExists
     }
 
     // encode password

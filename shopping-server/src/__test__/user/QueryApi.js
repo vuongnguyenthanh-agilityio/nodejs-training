@@ -44,3 +44,20 @@ export const queryGetUser = (variables) => ({
   `,
   variables
 })
+
+export const queryGetUsers = (variables) => ({
+  query: `
+    query getUsers($filter: FilterUserInput, $limit: Int, $nextToken: String){
+      getUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+        count
+        nextToken
+        users {
+          id
+          username
+          role
+        }
+      }
+    }
+  `,
+  variables
+})
