@@ -39,7 +39,7 @@ describe('Athentication: SignIn', () => {
     }
   })
 
-  it('SignIn successfuly', async () => {
+  it('SignIn successfully', async () => {
     const variables = {
       username: 'thanhtrung@gmail.com',
       password: 'trung@123'

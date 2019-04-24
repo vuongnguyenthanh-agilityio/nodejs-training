@@ -229,7 +229,7 @@ export default class UserModel {
   async deleteUser (id) {
     // Check valid some attribute that requires input
     if (!id) {
-      throw new UserInputError('Invalid user id', { id })
+      throw new UserInputError('Invalid user id.', { id })
     }
     const db = await this.getDatabase()
     try {

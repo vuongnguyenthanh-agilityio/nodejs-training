@@ -61,3 +61,18 @@ export const queryGetUsers = (variables) => ({
   `,
   variables
 })
+
+export const queryDeleteUser = (variables) => ({
+  query: `
+    mutation deleteUser($id: ID!) {
+      deleteUser(id: $id) {
+        id
+        username
+        role
+        address
+        phone
+      }
+    }
+  `,
+  variables
+})
