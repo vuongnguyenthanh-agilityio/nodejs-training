@@ -35,7 +35,6 @@ export default {
       isAdminRole,
       getUsers
     ),
-    // getUserById: getUserById
     getUserById: combineResolvers(
       isAuthenticated,
       getUserById

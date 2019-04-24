@@ -3,11 +3,20 @@ import { skip, combineResolvers } from 'graphql-resolvers'
 
 const ADMIN_ROLE = 'ADMIN'
 
+/**
+* Check authorization before the request api
+* @param {object} parent
+* @param {object} agr
+* @param {object} context
+* @return {object}
+*/
 export const isAuthenticated = async (parent, args, { currentUser, models }) => {
+  // Check current user exists yet
   if (!currentUser) {
     throw new ForbiddenError('Not authenticated as user.')
   }
 
+  // Check current user exists in database yet
   const user = await models.user.getUserByUsername(currentUser.username)
   if (!user) {
     throw new ForbiddenError('No user found.')
@@ -15,6 +24,7 @@ export const isAuthenticated = async (parent, args, { currentUser, models }) => 
   return skip
 }
 
+// Check role of current user is ADMIN role will continue.
 export const isAdminRole = combineResolvers(
   isAuthenticated,
   (parent, args, { currentUser: { role } }) => {
@@ -50,7 +60,6 @@ export const isPermissionModifyCategory = combineResolvers(
 export const isPermissionDeleteProduct = combineResolvers(
   isAuthenticated,
   async (parent, { id, input }, { models, currentUser: { role, id: userId } }) => {
-    // const categoryId = (input && input.id) ? input.id : id
     const product = await models.product.getProductById(id)
     if (role !== ADMIN_ROLE && (product && userId !== product.createdBy)) {
       throw new ForbiddenError('No permission.')

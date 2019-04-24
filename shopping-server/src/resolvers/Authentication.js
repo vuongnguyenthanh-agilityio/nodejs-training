@@ -2,7 +2,7 @@ import { AuthenticationError, UserInputError } from 'apollo-server'
 
 import { isBcryptCompare, createToken } from '../utils/Utilties'
 
-const ADMIN_ROLE = 'ADMIN1'
+const ADMIN_ROLE = 'ADMIN'
 
 /**
 * register a user to database

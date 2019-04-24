@@ -64,7 +64,7 @@ export default class CategoryModel {
       S: pk.toString()
     }
 
-    const item1 = {
+    const itemUserId = {
       ...item,
       sk: {
         S: `PRODUCT_DETAIL_${userId}`
@@ -80,7 +80,7 @@ export default class CategoryModel {
 
       await db.putItem({
         TableName: tableName,
-        Item: item1
+        Item: itemUserId
       })
     } catch (error) {
       throw new Error(error)
@@ -284,7 +284,7 @@ export default class CategoryModel {
 
   async deleteProduct (id, userId) {
     // Check valid some attribute that requires input
-    if (!id || userId) {
+    if (!id || !userId) {
       throw new UserInputError('Invalid product id', { id, userId })
     }
     const db = await this.getDatabase()

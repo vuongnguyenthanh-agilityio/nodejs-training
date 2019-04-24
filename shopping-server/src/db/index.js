@@ -5,7 +5,6 @@ export default class Database {
   async connect () {
     if (!this.connection) {
       const params = {
-        //  endpoint: 'http://localhost:8000',
         endpoint: 'http://localhost:8000',
         region: 'local',
         accessKeyId: 'local',
