@@ -1,14 +1,14 @@
 
-export const getUserById = async (parent, args, { models }) => {
+export const getUserById = async (parent, args, { loaders }) => {
   if (parent.createdBy) {
-    const user = await models.user.getUserById(parent.createdBy)
+    const user = await loaders.user.load(parent.createdBy)
     return user
   }
 }
 
-export const getConfirmUserById = async (parent, args, { models }) => {
-  if (parent.confirmBy) {
-    const user = await models.user.getUserById(parent.confirmBy)
+export const getConfirmUserById = async (parent, args, { loaders }) => {
+  if (parent.confirmedBy) {
+    const user = await loaders.user.load(parent.confirmedBy)
     return user
   }
 }

@@ -120,7 +120,7 @@ export default class CategoryModel {
 
     if (results && results.Item) {
       const product = results.Item
-      const { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status } = product
+      const { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status, confirmedBy } = product
       return {
         id: pk.S,
         categoryId: data && data.S,
@@ -132,7 +132,8 @@ export default class CategoryModel {
         status: status && status.S,
         photos: photos && photos.L,
         description: description && description.S,
-        createdBy: createdBy && createdBy.S
+        createdBy: createdBy && createdBy.S,
+        confirmedBy: confirmedBy && confirmedBy.S
       }
     }
   }
@@ -168,7 +169,7 @@ export default class CategoryModel {
         ':datetime': { S: datetime.toString() },
         ':createdBy': { S: userId.toString() }
       },
-      UpdateExpression: 'SET #status = :status, #confirmedAt = :datetime, confirmBy = :createdBy',
+      UpdateExpression: 'SET #status = :status, #confirmedAt = :datetime, confirmedBy = :createdBy',
       ReturnValues: 'ALL_NEW'
     }
     const param1 = {
@@ -184,7 +185,7 @@ export default class CategoryModel {
     await db.updateItem(param1)
 
     const { Attributes:
-      { pk, data, name, price, description, amount, photos, createdBy, discount, datetime: resDatetime, status: resStatus, confirmBy, confirmedAt }
+      { pk, data, name, price, description, amount, photos, createdBy, discount, datetime: resDatetime, status: resStatus, confirmedBy, confirmedAt }
     } = results
     return {
       id: pk.S,
@@ -198,7 +199,7 @@ export default class CategoryModel {
       photos: photos && photos.L,
       description: description && description.S,
       createdBy: createdBy && createdBy.S,
-      confirmBy: confirmBy && confirmBy.S,
+      confirmedBy: confirmedBy && confirmedBy.S,
       confirmedAt: confirmedAt && confirmedAt.S
     }
   }
@@ -257,7 +258,7 @@ export default class CategoryModel {
 
     if (results && results.Items && results.Items.length > 0) {
       const products = results.Items.map(product => {
-        const { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status, confirmedAt } = product
+        const { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status, confirmedAt, confirmedBy } = product
         return {
           id: pk.S,
           categoryId: data && data.S,
@@ -270,7 +271,8 @@ export default class CategoryModel {
           photos: photos && photos.L,
           description: description && description.S,
           createdBy: createdBy && createdBy.S,
-          confirmedAt: confirmedAt && confirmedAt.S
+          confirmedAt: confirmedAt && confirmedAt.S,
+          confirmedBy: confirmedBy && confirmedBy.S
         }
       })
 
@@ -314,7 +316,7 @@ export default class CategoryModel {
         }
       })
 
-      const { Attributes: { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status, confirmedAt } } = product
+      const { Attributes: { pk, data, name, price, description, amount, photos, createdBy, discount, datetime, status, confirmedAt, confirmedBy } } = product
 
       return {
         id: pk.S,
@@ -328,7 +330,8 @@ export default class CategoryModel {
         photos: photos && photos.L,
         description: description && description.S,
         createdBy: createdBy && createdBy.S,
-        confirmedAt: confirmedAt && confirmedAt.S
+        confirmedAt: confirmedAt && confirmedAt.S,
+        confirmedBy: confirmedBy && confirmedBy.S
       }
     } catch (error) {
       throw new Error(error)

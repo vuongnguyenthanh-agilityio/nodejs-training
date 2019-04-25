@@ -2,10 +2,12 @@ import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
 import { ApolloServer, AuthenticationError } from 'apollo-server-express'
+import DataLoader from 'dataloader'
 
 import schema from './schema'
 import models from './models'
 import resolvers from './resolvers'
+import loaders from './loaders'
 import { verifyToken } from './utils/Utilties'
 
 process.title = 'myApp'
@@ -37,7 +39,12 @@ const server = new ApolloServer({
     return {
       currentUser,
       models,
-      secret: process.env.SECRET
+      secret: process.env.SECRET,
+      loaders: {
+        user: new DataLoader(keys =>
+          loaders.user.batchUsers(keys, models)
+        )
+      }
     }
   }
 })

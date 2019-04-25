@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   extend type Query {
-    getProducts(filter: FilterProductInput, limit : Int, nextToken: String, userId: String): Products
+    getProducts(filter: FilterProductInput, limit : Int, nextToken: String): Products
     getProduct(id: ID!): Product!
   }
 

@@ -5,12 +5,18 @@ import moment from 'moment'
 import { isPermissionDeleteProduct, isPermissionUpdateProduct, isAuthenticated, isAdminRole } from './Authorization'
 import { getUserById, getConfirmUserById } from './Common'
 
+const CUSTOMER_ROLE = 'CUSTOMER'
+
 const deleteProduct = async (parent, { id }, { models, currentUser }) => {
   const product = await models.product.deleteProduct(id, currentUser.id)
   return product
 }
 
-const getProducts = async (parent, { userId, filter, limit, nextToken }, { models }) => {
+const getProducts = async (parent, { filter, limit, nextToken }, { models, currentUser }) => {
+  let userId = ''
+  if (currentUser.role === CUSTOMER_ROLE) {
+    userId = currentUser.id
+  }
   const products = await models.product.getProducts({ filter, limit, nextToken, userId })
   return products
 }

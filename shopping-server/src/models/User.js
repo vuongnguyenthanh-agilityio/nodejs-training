@@ -4,7 +4,7 @@ import moment from 'moment'
 
 import { isValidateEmail } from '../utils/Validators'
 import Database from '../db'
-import { encodePassword, decodeBase64 } from '../utils/Utilties'
+import { encodePassword, decodeBase64, encodeBase64 } from '../utils/Utilties'
 
 const tableName = process.env.NODE_ENV === 'test' ? 'Shopping_Test' : 'Shopping'
 const globalIndexOne = 'GSI_1'
@@ -127,7 +127,6 @@ export default class UserModel {
   }
 
   async getUsers ({ filter = {}, limit, nextToken }) {
-    const { role } = filter
     const db = await this.getDatabase()
     const param = {
       TableName: tableName,
@@ -148,9 +147,9 @@ export default class UserModel {
     let filterExpression = ''
 
     // Add filter by categoryId if have categoryId
-    if (role) {
+    if (filter && filter.role) {
       param.ExpressionAttributeValues[':role'] = {
-        S: role
+        S: filter.role
       }
       param.ExpressionAttributeNames['#role'] = 'role'
       filterExpression = '#role = :role'
@@ -160,6 +159,12 @@ export default class UserModel {
     if (filterExpression) {
       param.FilterExpression = filterExpression
     }
+
+    // encode nextToken
+    if (nextToken) {
+      param.ExclusiveStartKey = JSON.parse(encodeBase64(nextToken))
+    }
+
     try {
       // Qyery to database by param
       const results = await db.query(param)
