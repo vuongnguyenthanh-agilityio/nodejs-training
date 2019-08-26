@@ -175,7 +175,7 @@ describe('Authencation: SignUp', () => {
       name: 'Nguyen Thanh Trung',
       username: 'thanhtrung',
       password: 'trung@123',
-      role: 'ADMIN',
+      role: 'CUSTOMER',
       phone: '0963216949',
       address: '38, Vu Dinh Long, Da Nang'
     }
@@ -233,7 +233,7 @@ describe('Authenticaton: SignUp', () => {
       name: 'Nguyen Thanh Trung',
       username: 'thanhtrung@gmail.com',
       password: 'trung@123',
-      role: 'ADMIN',
+      role: 'CUSTOMER',
       phone: '0963216949',
       address: '38, Vu Dinh Long, Da Nang'
     }
