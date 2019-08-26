@@ -29,6 +29,7 @@ This is an application for management to buy and sell products.It helps customer
 ## Database
 
 * [DynamoDb](https://aws.amazon.com/dynamodb/)
+* [Design](https://docs.google.com/spreadsheets/d/1zD81t7Ih-47wXS8uljcX8A0T0CAQzxBgCoO0KqpquV0/edit?usp=sharing)
 
 ## Guideline
 
@@ -36,16 +37,16 @@ This is an application for management to buy and sell products.It helps customer
 `$ git git@gitlab.asoft-python.com:g-vuongnguyenthanh/nodejs-training.git -b feature/practice-one  practice`
 
 * Run Project
-  * `cd practice/shopping-server/`
+  * `cd shopping-server/`
   * `npm install`
   * `npm run start-dynamodb`
   * `npm start`
 
 * Run Test
-  * `cd practice/shopping-server/`
+  * `cd shopping-server/`
   * `npm install`
   * `npm run test`
 
 * Run Dynamodb admin
-  * `cd practice/shopping-server/`
+  * `cd shopping-server/`
   * `npm run start-dynamodb-admin`
