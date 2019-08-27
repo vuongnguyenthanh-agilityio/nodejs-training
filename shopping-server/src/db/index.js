@@ -4,15 +4,23 @@ import ShoppingTable from './ShoppingTable'
 export default class Database {
   async connect () {
     if (!this.connection) {
+      // const params = {
+      //   endpoint: 'http://localhost:8000',
+      //   region: 'local',
+      //   accessKeyId: 'local',
+      //   secretAccessKey: 'local'
+      // }
+
       const params = {
-        endpoint: 'http://localhost:8000',
-        region: 'local',
-        accessKeyId: 'local',
-        secretAccessKey: 'local'
+        endpoint: 'https://dynamodb.us-east-2.amazonaws.com',
+        region: 'us-east-2',
+        accessKeyId: 'AKIAU5BACJDVL2GNON47',
+        secretAccessKey: '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'
       }
 
       this.connection = new DynamoDB(params)
-      await this.createTable(ShoppingTable)
+      const result = await this.createTable(ShoppingTable)
+      console.log('createTable: ', result)
     }
 
     return this.connection
