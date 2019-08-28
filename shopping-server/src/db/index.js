@@ -14,8 +14,8 @@ export default class Database {
       const params = {
         endpoint: 'https://dynamodb.us-east-2.amazonaws.com',
         region: 'us-east-2',
-        accessKeyId: 'AKIAU5BACJDVL2GNON47',
-        secretAccessKey: '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'
+        accessKeyId: process.env.ACCESS_KEY,
+        secretAccessKey: process.env.SECRET_ACCESS_KEY
       }
 
       this.connection = new DynamoDB(params)
